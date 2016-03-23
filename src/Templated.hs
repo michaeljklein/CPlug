@@ -6,7 +6,8 @@
 {-# LANGUAGE FlexibleContexts #-}
 -- {-# LANGUAGE DataKinds #-}
 {-# LANGUAGE ConstraintKinds #-}
--- {-# LANGUAGE FunctionalDependencies #-}
+{-# LANGUAGE FunctionalDependencies #-}
+{-# LANGUAGE TypeFamilies #-}
 
 module Templateds () where
 
@@ -67,19 +68,30 @@ instance Resolution a => ResolvableTo a a where
   resolveTo :: a -> a
   resolveTo = id
 
+-- instance (a ~ b, Resolution a) => ResolvableTo a b where
+--   resolveTo = id
+
 -- | This is the recursive condition for `Resolvable`.
 instance (Constant a, ResolvableTo b c) => ResolvableTo (Fix a -> b) c where
   resolveTo :: (Fix a -> b) -> c
   resolveTo f = resolveTo (f Unfixed)
 
+instance (Resolution a, Resolution b) => Resolution (a -> b)
+
+instance (ResolvableTo a b, ResolvableTo a c) => ResolvableTo a (b -> c) where
+  resolveTo :: a -> (b -> c)
+  resolveTo f x = resolveTo f
+  -- resolveTo = resolveTo . resolveTo
+
+-- instance (Constant a, ResolvableTo b (c -> d)) => ResolvableTo (Fix a -> b) (c -> d) where
+--   resolveTo :: (Fix a -> b) -> (c -> d)
+--   resolveTo f = resolveTo (f Unfixed)
+
 class Resolvable a where
   resolve :: ResolvableTo a b => a -> b
   resolve = resolveTo
-
 instance Constant a => Resolvable a
-
 instance (Constant a, Resolvable b) => Resolvable (Fix a -> b)
-
 ----------------------------------------------------------------------------------------------------
 
 -- | A `Boomerang` is, in a way, a generalization of a `Resolvable`. The main difference is that a `Resolvable`
@@ -92,15 +104,13 @@ class (ResolvableTo a b, ResolvableTo a c) => BoomerangToWith a b c where
   --   variables (i.e. `g` is resolved, but still has type `Resolution r => Fix a0 -> .. -> r`.
   stickToWith     :: (b -> c) -> a -> a
 
--- | This is the stopping condition for `Boomerang`.
-instance Constant a => BoomerangToWith a a a where
+instance Resolution a => BoomerangToWith a a a where
   boomerangToWith :: (a -> a) -> a -> a
   boomerangToWith f   =  f
 
   stickToWith     :: (a -> a) -> a -> a
   stickToWith     f   =  f
 
--- | This is the recursive condition for `Boomerang`.
 instance (Constant a, BoomerangToWith b c d) => BoomerangToWith (Fix a -> b) c d where
   boomerangToWith :: (c -> d) -> (Fix a -> b) -> Fix a -> b
   boomerangToWith f x y = boomerangToWith f (x y      )
@@ -108,10 +118,8 @@ instance (Constant a, BoomerangToWith b c d) => BoomerangToWith (Fix a -> b) c d
   stickToWith     :: (c -> d) -> (Fix a -> b) -> Fix a -> b
   stickToWith     f x y = stickToWith f (x Unfixed)
 
+instance (Constant b, BoomerangToWith a b c) => BoomerangToWith a (b -> c) c
 
-instance BoomerangToWith a b c => BoomerangToWith a (b -> c) c where
-  boomerangToWith :: ((b -> c) -> c) -> a -> a
-  -- boomerangToWith = boomerangToWith f
 
 class BoomerangToWith a b b => BoomerangTo a b where
   boomerangTo :: (b -> b) -> a -> a
@@ -119,20 +127,11 @@ class BoomerangToWith a b b => BoomerangTo a b where
   stickTo     :: (b -> b) -> a -> a
   stickTo     =     stickToWith
 
-instance BoomerangToWith a b b => BoomerangTo a b where
-  boomerangTo = boomerangToWith
-  stickTo     =     stickToWith
-
 class Boomerang a where
   boomerang :: BoomerangTo a b => (b -> b) -> a -> a
   boomerang = boomerangTo
   stick     :: BoomerangTo a b => (b -> b) -> a -> a
   stick     = stickTo
-
-instance BoomerangTo a b => Boomerang a where
-  boomerang = boomerangTo
-  stick     = stickTo
-
 
 ----------------------------------------------------------------------------------------------------
 
@@ -143,8 +142,60 @@ instance BoomerangTo a b => Boomerang a where
 
 type BoomerangWithTo b c a = BoomerangToWith a b c
 
--- ($$) :: BoomerangToWith a (b -> c) c => a -> b -> a
--- ($$) p x = boomerangToWith ($ x) p
+-- ($$) :: (Constant b, BoomerangToWith a (b -> c) c) => a -> b -> a
+($$) p x = boomerangToWith ($ x) p
+
+(C a, C b) => P (Fix a) (a -> b) where
+  rs :: (Fix a -> (a -> b)) -> (a -> b)
+  rs p = p Unfixed
+  ap :: (Fix a -> (a -> b)) -> a -> b
+  ap p x = p (Fixed x) x
+  fm :: (Fix a -> (a -> b)) -> (c -> a) -> (Fix c -> (c -> b))
+  fm p f fa a = p (liftF f fa) (f a)
+  -- fe :: (Fix a -> (a -> b)) -> (b -> c) -> (Fix a -> (a -> c))
+  -- fe p f = f . p
+
+(C a, C b, C c) => P (Fix a -> Fix b) (a -> b -> c) where
+  rs :: (Fix a -> Fix b -> (a -> b -> c)) -> (a -> b -> c)
+  rs p = (p Unfixed) Unfixed
+  ap :: (Fix a -> Fix b -> (a -> b -> c)) -> a -> (Fix b -> (b -> c))
+  ap p x = \y -> p (Fixed x) (Fixed y) x y
+  fm :: (Fix a -> Fix b -> (a -> b -> c)) -> (d -> a) -> (Fix d -> Fix b -> (d -> b -> c))
+  fm p f fa fb a b = p (liftF f fa) fb b (f a)
+
+
+fb ->  b ->  a
+fc -> fb ->  c ->  b ->  a
+fd -> fc -> fb ->  d ->  c ->  b ->  a
+fe -> fd -> fc -> fb ->  e ->  d ->  c ->  b ->  a
+ff -> fe -> fd -> fc -> fb ->  f ->  e ->  d ->  c ->  b ->  a
+
+
+(a -> b -> c)      -> d -> c
+(a -> b -> c -> d) -> e -> d
+(a -> b -> c) -> (c -> d) -> (a -> b -> d)
+(d -> a) -> (a -> b -> c) -> (d -> b -> c)
+(a -> b -> c -> d) -> b -> a -> c -> d
+(a -> b -> c -> d) -> a -> b -> c -> d
+
+(a -> b) -> (b -> c) -> a -> c
+(a -> b -> c) -> b -> a -> c
+(a -> b) -> a -> b
+
+uncurry :: (a -> b -> c) -> (a, b) -> c
+fmap :: (a -> b) -> f a -> f b
+(<*>) :: f (a -> b) -> f a -> f b
+(=<<) :: Monad m => (a -> m b) -> m a -> m b
+(.) :: (b -> c) -> (a -> b) -> a -> c
+flip :: (a -> b -> c) -> b -> a -> c
+($) :: (a -> b) -> a -> b
+
+
+
+(C a, P b c) => P (Fix a -> b) (a -> c)
+
+
+
 
 -- class PartialTo a b where
 --   ($$) :: BoomerangToWith a (b -> c) c => a -> b -> a
