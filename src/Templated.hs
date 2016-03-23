@@ -163,13 +163,44 @@ type BoomerangWithTo b c a = BoomerangToWith a b c
   fm :: (Fix a -> Fix b -> (a -> b -> c)) -> (d -> a) -> (Fix d -> Fix b -> (d -> b -> c))
   fm p f fa fb a b = p (liftF f fa) fb b (f a)
 
+data Nat = Zero | Succ Nat
 
-fb ->  b ->  a
-fc -> fb ->  c ->  b ->  a
-fd -> fc -> fb ->  d ->  c ->  b ->  a
-fe -> fd -> fc -> fb ->  e ->  d ->  c ->  b ->  a
-ff -> fe -> fd -> fc -> fb ->  f ->  e ->  d ->  c ->  b ->  a
+toNat :: Int -> Nat
+toNat 0 = Zero
+toNat n = Succ (toNat (n-1))
 
+fromNat :: Nat -> Int
+fromNat Zero     = 0
+fromNat (Succ n) = 1 + fromNat n
+
+testNat :: Int -> Bool
+testNat n | n < 0 = True
+          | True  = n == fromNat . toNat n
+
+class Partial α β n where
+  resolveP  ::                                    (α -> β) -> (β -> γ) -> (α -> γ)  -- Boomerang function, traverses to `β` and applies `(β -> γ)`, leaving the rest untouched
+  resolveF  ::                                    (α -> β) ->  β                    -- β replace `Constant a => Fix a` with `Unfixed`
+  resolveC  ::  Constant Ω =>                     (α -> β) ->  Ω                    -- Resolves `(α -> β)` to a constant
+  ($$)      :: (Constant a, Partial δ ε (n-1)) => (α -> β) ->        a -> (δ -> ε)  -- Apply `c` to `(α -> β)` at argument 0, unless not of type `c` (fails silently)
+  ($#)      :: (Constant b, Partial δ ε (n-1)) => (α -> β) -> Int -> b -> (δ -> ε)  -- Apply `c` to `(α -> β)` at argument `Int`, unless out of bounds or not of type `c` (fails silently)
+  arity     ::  Int                                                                 -- Return the `arity` of `Partial α β n`
+
+-- unResolve :: (α -> β) ->          -- Match arities of `α` and `β` (where matched means `α` has one less argument)
+
+0:                                                             (a)
+1:                         (fb)     ->                    (b ->(a))
+2:                   (fc ->(fb))    ->               (c ->(b ->(a)))
+3:             (fd ->(fc ->(fb)))   ->          (d ->(c ->(b ->(a))))
+4:       (fe ->(fd ->(fc ->(fb))))  ->     (e ->(d ->(c ->(b ->(a)))))
+5: (ff ->(fe ->(fd ->(fc ->(fb))))) ->(f ->(e ->(d ->(c ->(b ->(a))))))
+
+
+0: (        ) -> (a      )
+1: (fb      ) -> (b -> u0)
+2: (fc -> f1) -> (c -> u1)
+3: (fd -> f2) -> (d -> u2)
+4: (fe -> f3) -> (e -> u3)
+5: (ff -> f4) -> (f -> u4)
 
 (a -> b -> c)      -> d -> c
 (a -> b -> c -> d) -> e -> d
