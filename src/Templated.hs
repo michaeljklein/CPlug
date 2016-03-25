@@ -180,10 +180,24 @@ testNat n | n < 0 = True
 class Partial α β n where
   resolveP  ::                                    (α -> β) -> (β -> γ) -> (α -> γ)  -- Boomerang function, traverses to `β` and applies `(β -> γ)`, leaving the rest untouched
   resolveF  ::                                    (α -> β) ->  β                    -- β replace `Constant a => Fix a` with `Unfixed`
-  resolveC  ::  Constant Ω =>                     (α -> β) ->  Ω                    -- Resolves `(α -> β)` to a constant
+  resolveC  ::  Constant ω =>                     (α -> β) ->  ω                    -- Resolves `(α -> β)` to a constant
   ($$)      :: (Constant a, Partial δ ε (n-1)) => (α -> β) ->        a -> (δ -> ε)  -- Apply `c` to `(α -> β)` at argument 0, unless not of type `c` (fails silently)
   ($#)      :: (Constant b, Partial δ ε (n-1)) => (α -> β) -> Int -> b -> (δ -> ε)  -- Apply `c` to `(α -> β)` at argument `Int`, unless out of bounds or not of type `c` (fails silently)
   arity     ::  Int                                                                 -- Return the `arity` of `Partial α β n`
+
+instance (Constant a0, Constant a1) => Partial (Fix a1) (a1 -> a0) (Succ Zero) where
+  resolveP :: (Fix a1 -> (a1 -> a0)) -> ((a1 -> a0) -> c) -> (Fix a1 -> c)
+
+  resolveF :: (Fix a1 -> (a1 -> a0)) -> (a1 -> a0)
+  resolveF p = p Unfixed
+  resolveC :: (Fix a1 -> (a1 -> a0)) -> a0
+  ($$)
+  ($#)
+  arit :: Int
+  arity = 1
+
+instance (Constant aj, Partial αi βi i) => Partial (Fix aj -> αi) (aj -> βi) (Succ i) where
+
 
 -- unResolve :: (α -> β) ->          -- Match arities of `α` and `β` (where matched means `α` has one less argument)
 
