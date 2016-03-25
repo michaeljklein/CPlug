@@ -5,15 +5,11 @@
 
 import Prelude hiding ((.), ($))
 
-class Functional f where
-  getArg :: f -> a -> b
+class Functional f
 
-instance Num a => Functional a where
-  getArg x a = []
+instance Num a => Functional (a -> a)
 
-instance Num a => Functional (a -> a) where
-  -- getArg :: (a -> a) -> b -> c
-  getArg f x = (x :) . getArg (f x)
+instance Num a => Functional (a -> a -> a)
 
 ($) :: Functional (a -> b) => (a -> b) -> a -> b
 f $ x = f x

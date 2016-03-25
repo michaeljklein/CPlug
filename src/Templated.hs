@@ -4,7 +4,7 @@
 {-# LANGUAGE InstanceSigs #-}
 {-# LANGUAGE AllowAmbiguousTypes #-}
 {-# LANGUAGE FlexibleContexts #-}
--- {-# LANGUAGE DataKinds #-}
+{-# LANGUAGE DataKinds #-}
 {-# LANGUAGE ConstraintKinds #-}
 {-# LANGUAGE FunctionalDependencies #-}
 {-# LANGUAGE TypeFamilies #-}
@@ -12,6 +12,7 @@
 module Templateds () where
 
 import Data.Coerce
+import Data.Proxy
 
 -- | `Fix` is essentially `Maybe` but renamed to 1) avoid confusion, 2) prevent "rogue" instances of `Maybe` from messing things up.
 data Fix a = Fixed a | Unfixed
@@ -36,7 +37,7 @@ toMaybe  Unfixed  = Nothing
 fromMaybe :: Maybe a -> Fix a
 fromMaybe (Just x) = Fixed x
 fromMaybe Nothing  = Unfixed
-
+{-
 ----------------------------------------------------------------------------------------------------
 
 -- | This is rather self-explanatory. Biggest thing to not do is define an instance of the form:
@@ -162,8 +163,11 @@ type BoomerangWithTo b c a = BoomerangToWith a b c
   ap p x = \y -> p (Fixed x) (Fixed y) x y
   fm :: (Fix a -> Fix b -> (a -> b -> c)) -> (d -> a) -> (Fix d -> Fix b -> (d -> b -> c))
   fm p f fa fb a b = p (liftF f fa) fb b (f a)
-
+-}
 data Nat = Zero | Succ Nat
+
+succ :: Nat -> Nat
+succ n = Succ n
 
 toNat :: Int -> Nat
 toNat 0 = Zero
@@ -175,69 +179,106 @@ fromNat (Succ n) = 1 + fromNat n
 
 testNat :: Int -> Bool
 testNat n | n < 0 = True
-          | True  = n == fromNat . toNat n
+          | True  = n == (fromNat . toNat) n
 
-class Partial α β n where
+
+
+
+
+
+class N a where
+  toInt :: a -> Int
+  suc   :: a -> (() -> a)
+
+instance N () where
+  toInt :: () -> Int
+  toInt = const 0
+
+  suc   :: () -> () -> ()
+  suc  = asTypeOf
+
+instance N a => N (() -> a) where
+  toInt :: (() -> a) -> Int
+  toInt x = (1 + toInt (x undefined))
+
+  suc   :: a -> (() -> a)
+  suc   = const
+
+
+
+class Constant a
+
+class PlusOne a b
+
+instance PlusOne () (() -> ())
+
+instance PlusOne a b => PlusOne (() -> a) (() -> b)
+
+-- instance PlusOne (const Zero) (Succ Zero)
+
+-- instance PlusOne Zero (Succ Z)
+
+class Partial α β m where
   resolveP  ::                                    (α -> β) -> (β -> γ) -> (α -> γ)  -- Boomerang function, traverses to `β` and applies `(β -> γ)`, leaving the rest untouched
   resolveF  ::                                    (α -> β) ->  β                    -- β replace `Constant a => Fix a` with `Unfixed`
   resolveC  ::  Constant ω =>                     (α -> β) ->  ω                    -- Resolves `(α -> β)` to a constant
-  ($$)      :: (Constant a, Partial δ ε (n-1)) => (α -> β) ->        a -> (δ -> ε)  -- Apply `c` to `(α -> β)` at argument 0, unless not of type `c` (fails silently)
-  ($#)      :: (Constant b, Partial δ ε (n-1)) => (α -> β) -> Int -> b -> (δ -> ε)  -- Apply `c` to `(α -> β)` at argument `Int`, unless out of bounds or not of type `c` (fails silently)
-  arity     ::  Int                                                                 -- Return the `arity` of `Partial α β n`
+  ($$)      :: (Constant a, PlusOne n m, Partial δ ε n) => (α -> β) ->        a -> (δ -> ε)  -- Apply `c` to `(α -> β)` at argument 0, unless not of type `c` (fails silently)
+  ($#)      :: (Constant b, PlusOne n m, Partial δ ε n) => (α -> β) -> Int -> b -> (δ -> ε)  -- Apply `c` to `(α -> β)` at argument `Int`, unless out of bounds or not of type `c` (fails silently)
+  arity     :: m                                                                 -- Return the `arity` of `Partial α β n`
 
-instance (Constant a0, Constant a1) => Partial (Fix a1) (a1 -> a0) (Succ Zero) where
-  resolveP :: (Fix a1 -> (a1 -> a0)) -> ((a1 -> a0) -> c) -> (Fix a1 -> c)
+-- instance (Constant a0, Constant a1) => Partial (Fix a1) (a1 -> a0) (Succ Zero) where
+--   resolveP :: (Fix a1 -> (a1 -> a0)) -> ((a1 -> a0) -> c) -> (Fix a1 -> c)
 
-  resolveF :: (Fix a1 -> (a1 -> a0)) -> (a1 -> a0)
-  resolveF p = p Unfixed
-  resolveC :: (Fix a1 -> (a1 -> a0)) -> a0
-  ($$)
-  ($#)
-  arit :: Int
-  arity = 1
+--   resolveF :: (Fix a1 -> (a1 -> a0)) -> (a1 -> a0)
+--   resolveF p = p Unfixed
+--   resolveC :: (Fix a1 -> (a1 -> a0)) -> a0
+--   ($$)
+--   ($#)
+--   arit :: Int
+--   arity = 1
 
-instance (Constant aj, Partial αi βi i) => Partial (Fix aj -> αi) (aj -> βi) (Succ i) where
+-- instance (Constant aj, Partial αi βi i) => Partial (Fix aj -> αi) (aj -> βi) (Succ i) where
 
 
 -- unResolve :: (α -> β) ->          -- Match arities of `α` and `β` (where matched means `α` has one less argument)
 
-0:                                                             (a)
-1:                         (fb)     ->                    (b ->(a))
-2:                   (fc ->(fb))    ->               (c ->(b ->(a)))
-3:             (fd ->(fc ->(fb)))   ->          (d ->(c ->(b ->(a))))
-4:       (fe ->(fd ->(fc ->(fb))))  ->     (e ->(d ->(c ->(b ->(a)))))
-5: (ff ->(fe ->(fd ->(fc ->(fb))))) ->(f ->(e ->(d ->(c ->(b ->(a))))))
+-- 0:                                                             (a)
+-- 1:                         (fb)     ->                    (b ->(a))
+-- 2:                   (fc ->(fb))    ->               (c ->(b ->(a)))
+-- 3:             (fd ->(fc ->(fb)))   ->          (d ->(c ->(b ->(a))))
+-- 4:       (fe ->(fd ->(fc ->(fb))))  ->     (e ->(d ->(c ->(b ->(a)))))
+-- 5: (ff ->(fe ->(fd ->(fc ->(fb))))) ->(f ->(e ->(d ->(c ->(b ->(a))))))
 
 
-0: (        ) -> (a      )
-1: (fb      ) -> (b -> u0)
-2: (fc -> f1) -> (c -> u1)
-3: (fd -> f2) -> (d -> u2)
-4: (fe -> f3) -> (e -> u3)
-5: (ff -> f4) -> (f -> u4)
+-- 0: (        ) -> (a      )
+-- 1: (fb      ) -> (b -> u0)
+-- 2: (fc -> f1) -> (c -> u1)
+-- 3: (fd -> f2) -> (d -> u2)
+-- 4: (fe -> f3) -> (e -> u3)
+-- 5: (ff -> f4) -> (f -> u4)
 
-(a -> b -> c)      -> d -> c
-(a -> b -> c -> d) -> e -> d
-(a -> b -> c) -> (c -> d) -> (a -> b -> d)
-(d -> a) -> (a -> b -> c) -> (d -> b -> c)
-(a -> b -> c -> d) -> b -> a -> c -> d
-(a -> b -> c -> d) -> a -> b -> c -> d
+-- (a -> b -> c)      -> d -> c
+-- (a -> b -> c -> d) -> e -> d
+-- (a -> b -> c) -> (c -> d) -> (a -> b -> d)
+-- (d -> a) -> (a -> b -> c) -> (d -> b -> c)
+-- (a -> b -> c -> d) -> b -> a -> c -> d
+-- (a -> b -> c -> d) -> a -> b -> c -> d
 
-(a -> b) -> (b -> c) -> a -> c
-(a -> b -> c) -> b -> a -> c
-(a -> b) -> a -> b
+-- (a -> b) -> (b -> c) -> a -> c
+-- (a -> b -> c) -> b -> a -> c
+-- (a -> b) -> a -> b
 
-uncurry :: (a -> b -> c) -> (a, b) -> c
-fmap :: (a -> b) -> f a -> f b
-(<*>) :: f (a -> b) -> f a -> f b
-(=<<) :: Monad m => (a -> m b) -> m a -> m b
-(.) :: (b -> c) -> (a -> b) -> a -> c
-flip :: (a -> b -> c) -> b -> a -> c
-($) :: (a -> b) -> a -> b
+-- uncurry :: (a -> b -> c) -> (a, b) -> c
+-- fmap :: (a -> b) -> f a -> f b
+-- (<*>) :: f (a -> b) -> f a -> f b
+-- (=<<) :: Monad m => (a -> m b) -> m a -> m b
+-- (.) :: (b -> c) -> (a -> b) -> a -> c
+-- flip :: (a -> b -> c) -> b -> a -> c
+-- ($) :: (a -> b) -> a -> b
 
 
 
-(C a, P b c) => P (Fix a -> b) (a -> c)
+-- (C a, P b c) => P (Fix a -> b) (a -> c)
 
 
 
