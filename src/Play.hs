@@ -69,15 +69,14 @@ sum3 x y z = fWrap (\x2 y2 z2 -> fromF x x2 + fromF y y2 + fromF z z2, fromFixed
     fromF _       _ = 0
 
 
-class (Resolution b, Resolution d) => RBounce a b c d | a -> b, c -> d where
+class (Resolution b, Resolution d) => RBounce a b c d | a -> b, c -> d, a c -> d where
   rbounce :: (b -> d) -> a -> c
 
--- This is the base (a -> a) -> a -> a instance
--- instance (Resolution x, Resolution y, Resolution z, Resolution w, x ~ FWrapper a b, y ~ FWrapper c d, z ~ FWrapper e f, w ~ FWrapper g h, x ~ y, y ~ z, z ~ w) => RBounce x y z w where
-  -- rbounce = ($)
+-- instance (Resolution x, Resolution y, Resolution z, Resolution w, x ~ FWrapper a b, y ~ FWrapper c d, z ~ FWrapper e f, w ~ FWrapper g h, x ~ y, z ~ w) => RBounce x y z w where
+--   rbounce = ($)
 
-instance (Resolution x, Resolution y, Resolution z, Resolution w, x ~ FWrapper a b, y ~ FWrapper c d, z ~ FWrapper e f, w ~ FWrapper g h, x ~ y, z ~ w) => RBounce x y z w where
-  rbounce = ($)
+instance (Constant a, RBounce x y z w) => RBounce (Fix a -> x) y (Fix a -> z) w where
+  rbounce f b = \x -> rbounce f (b x)
 
 -- instance (Resolution x, Resolution y, x ~ FWrapper a b, y ~ FWrapper c d, x ~ y) => RBounce x y where
 --   rbounce :: (Resolution w, w ~ FWrapper e f) => (y -> z) -> x -> w
