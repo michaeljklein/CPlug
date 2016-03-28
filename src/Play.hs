@@ -89,14 +89,13 @@ class Resolution b => RFix a b | a -> b where
 instance (Resolution x, Resolution y, x ~ FWrapper a b, y ~ FWrapper c d, x ~ y) => RFix x y where
   rfix = id
 
--- instance Resolution a => RFix a a where
---   rfix = id
-
 instance Resolution b => RFix (Fix Int -> b) b where
-  rfix = ($ Unfixed)
+  rfix :: (Fix Int -> b) -> b
+  rfix =        ($ Unfixed)
 
 instance RFix a b => RFix (Fix Int -> a) b where
-  rfix x = undefined
+  rfix :: (Fix Int -> a) -> b
+  rfix = rfix . ($ Unfixed)
 
 -- instance (Constant a, RFix b c) => RFix (Fix a -> b) c where
 --   rfix = rfix . unFix
@@ -106,7 +105,7 @@ tt :: Fix Int -> FWrapper (Int -> String) String
 tt x = fwrap (show, show x)
 
 ttt :: Fix Int -> Fix Int -> FWrapper (Int -> Int -> String) String
-ttt x y = FWrapper (\z w -> show (z + w)) (show (x + y))
+ttt x y = FWrapper (\z w -> show (z, w)) (show (x, y))
 
 
 
