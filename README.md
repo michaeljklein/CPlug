@@ -1,5 +1,8 @@
 # CPlug
 
+Note: I set up a small pre-commit script that runs cloc . | tee stats.txt to print/show how many lines of code per language, etc. If you are committing, either install CLOC (Count Lines of Code), which can be installed with `brew install cloc`, or delete the script in `.git/hooks`.
+
+
 Goals:
 - Generate a Haskell Module from a .c file
 - Automatically generate (HaskellCType a -> CTypeString) functions

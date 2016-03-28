@@ -2,7 +2,7 @@
 classified 26 files      26 unique files.                              
       14 files ignored.
 
-http://cloc.sourceforge.net v 1.64  T=0.23 s (60.1 files/s, 9614.3 lines/s)
+http://cloc.sourceforge.net v 1.64  T=0.22 s (62.8 files/s, 10040.1 lines/s)
 -------------------------------------------------------------------------------
 Language                     files          blank        comment           code
 -------------------------------------------------------------------------------
