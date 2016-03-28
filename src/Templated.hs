@@ -185,10 +185,13 @@ testNat n | n < 0 = True
 
 
 
-
+-- | This is a class-level implementation of the natural numbers. `()` is zero, `() -> ()` is one, etc.
 class N a where
+  -- type SucN a
+  -- | `toInt` does as one would expect, with [toInt (), toInt (suc ())..] = [0,1..]
   toInt :: a -> Int
   suc   :: a -> (() -> a)
+  -- sucN  :: Int -> a -> SucN a
 
 instance N () where
   toInt :: () -> Int
@@ -197,6 +200,8 @@ instance N () where
   suc   :: () -> () -> ()
   suc  = asTypeOf
 
+  -- sucN 0 x = x
+
 instance N a => N (() -> a) where
   toInt :: (() -> a) -> Int
   toInt x = (1 + toInt (x undefined))
@@ -204,27 +209,97 @@ instance N a => N (() -> a) where
   suc   :: a -> (() -> a)
   suc   = const
 
-
+-- It works!
+-- *> toInt $ ()
+-- 0
+-- *> toInt $ suc $ ()
+-- 1
+-- *> toInt $ suc . suc $ ()
+-- 2
+-- *> toInt $ suc . suc . suc $ ()
+-- 3
+-- *> toInt $ suc . suc . suc . suc $ ()
+-- 4
+-- *> toInt $ suc . suc . suc . suc . suc $ ()
+-- 5
+-- *> toInt $ suc . suc . suc . suc . suc . suc $ ()
+-- 6
+-- *> toInt $ suc . suc . suc . suc . suc . suc . suc$ ()
+-- 7
 
 class Constant a
 
-class PlusOne a b
-
-instance PlusOne () (() -> ())
-
+class (b ~ (() -> a)) => PlusOne a b where
+  ar :: a -> b
+  ar = const
+instance PlusOne () (() -> ()) where
 instance PlusOne a b => PlusOne (() -> a) (() -> b)
 
--- instance PlusOne (const Zero) (Succ Zero)
+class ResolveP a b
 
--- instance PlusOne Zero (Succ Z)
+class ResolveF a b where
+  resolveF :: (a -> b) -> b
 
-class Partial α β m where
-  resolveP  ::                                    (α -> β) -> (β -> γ) -> (α -> γ)  -- Boomerang function, traverses to `β` and applies `(β -> γ)`, leaving the rest untouched
-  resolveF  ::                                    (α -> β) ->  β                    -- β replace `Constant a => Fix a` with `Unfixed`
-  resolveC  ::  Constant ω =>                     (α -> β) ->  ω                    -- Resolves `(α -> β)` to a constant
-  ($$)      :: (Constant a, PlusOne n m, Partial δ ε n) => (α -> β) ->        a -> (δ -> ε)  -- Apply `c` to `(α -> β)` at argument 0, unless not of type `c` (fails silently)
-  ($#)      :: (Constant b, PlusOne n m, Partial δ ε n) => (α -> β) -> Int -> b -> (δ -> ε)  -- Apply `c` to `(α -> β)` at argument `Int`, unless out of bounds or not of type `c` (fails silently)
-  arity     :: m                                                                 -- Return the `arity` of `Partial α β n`
+instance (Constant a, Constant b) => ResolveF (Fix a) (a -> b) where
+  resolveF :: (Fix a -> (a -> b)) -> (a -> b)
+  resolveF f = f Unfixed
+
+-- instance (Constant a, ResolveF b c) => ResolveF (Fix a -> b) (a -> c) where
+--   resolveF :: (Fix a -> b -> (a -> c)) -> (a -> c)
+--   resolveF f = resolveF (f Unfixed)
+
+class ResolveC a b where
+  resolveC :: Constant c => (a -> b) -> c
+
+-- instance (Constant a, Constant b) => ResolveC (Fix a) (a -> b) where
+--   resolveC f = f Unfixed undefined
+
+class ApplyP a b
+
+class ApplyPN a b
+
+class UnResolve a b
+
+
+
+
+-- class Partial α β m where
+--   resolveP   ::                                             (α -> β) -> (β -> γ) -> (α -> γ)  -- Boomerang function, traverses to `β` and applies `(β -> γ)`, leaving the rest untouched
+--   resolveF   ::                                             (α -> β) ->  β                    -- Return `β` by replacing all `Constant a => Fix a` with `Unfixed`
+--   resolveC   ::  Constant ω =>                              (α -> β) ->  ω                    -- Resolves `(α -> β)` to a constant
+--   ($$)       :: (Constant a, PlusOne n m, Partial δ ε n) => (α -> β) ->        a -> (δ -> ε)  -- Apply `c` to `(α -> β)` at argument 0, unless not of type `c` (fails silently)
+--   ($#)       :: (Constant b, PlusOne n m, Partial δ ε n) => (α -> β) -> Int -> b -> (δ -> ε)  -- Apply `c` to `(α -> β)` at argument `Int`, unless out of bounds or not of type `c` (fails silently)
+--   blankArity :: m                                                                 -- Return the `arity` of `Partial α β n`
+
+-- instance (Constant a, Partial α β n) => Partial (Fix a -> α) (a -> β) (() -> n) where
+--   resolveP   :: (Fix a -> α -> (a -> β)) -> ((a -> β) -> γ) -> (Fix a -> α -> γ)
+--   resolveF   :: (Fix a -> α -> (a -> β)) -> (a -> β)
+--   resolveF p = resolveF (p Unfixed)
+--   resolveC   :: (Fix a -> α -> (a -> β)) -> ω
+--   ($$)       :: (Fix a -> α -> (a -> β)) -> a        -> (δ -> ε)
+--   ($#)       :: (Fix a -> α -> (a -> β)) -> Int -> b -> (δ -> ε)
+--   blankArity :: (() -> n)
+--   blankArity = suc n
+
+-- instance (Constant a0, Constant a1) => Partial (Fix a1) (a1 -> a0) (() -> ()) where
+--   resolveP   :: (Fix a1 -> (a1 -> a0)) -> ((a1 -> a0) -> c) -> Fix a1 -> c
+--   resolveF   :: (Fix a1 -> (a1 -> a0)) ->  (a1 -> a0)
+--   resolveC   :: (Fix a1 -> (a1 -> a0)) ->   a0
+--   ($$)       :: (Fix a1 -> (a1 -> a0)) ->   a1 -> a0
+--   ($#)       :: (Fix a1 -> (a1 -> a0)) ->
+--   blankArity :: () -> ()
+--   blankArity = suc ()
+
+
+
+
+
+
+
+
+
+
+
 
 -- instance (Constant a0, Constant a1) => Partial (Fix a1) (a1 -> a0) (Succ Zero) where
 --   resolveP :: (Fix a1 -> (a1 -> a0)) -> ((a1 -> a0) -> c) -> (Fix a1 -> c)
