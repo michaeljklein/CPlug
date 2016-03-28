@@ -10,7 +10,7 @@
 -- {-# LANGUAGE TypeFamilies #-}
 -- {-# LANGUAGE ImpredicativeTypes #-}
 -- {-# LANGUAGE LiberalTypeSynonyms #-}
--- {-# LANGUAGE GADTs #-}
+{-# LANGUAGE GADTs #-}
 -- {-# LANGUAGE ExistentialQuantification #-}
 -- {-# LANGUAGE RankNTypes #-}
 -- {-# LANGUAGE ScopedTypeVariables #-}
@@ -86,11 +86,17 @@ isConstant = id
 class Resolution b => RFix a b | a -> b where
   rfix :: a -> b
 
+instance (Resolution x, Resolution y, x ~ FWrapper a b, y ~ FWrapper c d, x ~ y) => RFix x y where
+  rfix = id
+
 -- instance Resolution a => RFix a a where
 --   rfix = id
 
 instance Resolution b => RFix (Fix Int -> b) b where
   rfix = ($ Unfixed)
+
+instance RFix a b => RFix (Fix Int -> a) b where
+  rfix x = undefined
 
 -- instance (Constant a, RFix b c) => RFix (Fix a -> b) c where
 --   rfix = rfix . unFix
