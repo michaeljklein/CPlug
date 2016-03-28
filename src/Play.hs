@@ -77,58 +77,34 @@ instance Resolution (FWrapper a b)
 isRes :: Resolution a => a -> Bool
 isRes = const True
 
-class Constant a
+class Eq a => Constant a
 instance Eq a => Constant a
 isConstant :: Constant a => a -> a
 isConstant = id
 
 
-class Resolution b => RFix a b | a -> b where
-  rfix :: a -> b
 
-instance (Resolution x, Resolution y, x ~ FWrapper a b, y ~ FWrapper c d, x ~ y) => RFix x y where
-  rfix = id
 
-instance Resolution b => RFix (Fix Int -> b) b where
-  rfix :: (Fix Int -> b) -> b
-  rfix =        ($ Unfixed)
 
-instance RFix a b => RFix (Fix Int -> a) b where
-  rfix :: (Fix Int -> a) -> b
-  rfix = rfix . ($ Unfixed)
+class Resolution b => RFix' a b | a -> b where
+  rfix' :: a -> b
 
--- instance (Constant a, RFix b c) => RFix (Fix a -> b) c where
---   rfix = rfix . unFix
+instance (Resolution x, Resolution y, x ~ FWrapper a b, y ~ FWrapper c d, x ~ y) => RFix' x y where
+  rfix' = id
 
+instance (Constant a, Resolution b) => RFix' (Fix a -> b) b where
+  rfix' :: Constant a => (Fix a -> b) -> b
+  rfix' = ($ Unfixed)
+
+instance (Constant a, RFix' b c) => RFix' (Fix a -> b) c where
+  rfix' :: Constant a => (Fix a -> b) -> c
+  rfix' = rfix' . ($ Unfixed)
 
 tt :: Fix Int -> FWrapper (Int -> String) String
 tt x = fwrap (show, show x)
 
 ttt :: Fix Int -> Fix Int -> FWrapper (Int -> Int -> String) String
 ttt x y = FWrapper (\z w -> show (z, w)) (show (x, y))
-
-
-
--- ff :: Show a => Fix a -> Fix a -> Fix a -> FWrapper (b -> c -> d -> Bool) String
--- ff x y z = FWrapper (\x y z -> True) (unwords $ map (++"|") $ map f [x,y,z])
-
--- gg :: (Show t, Fixable t) => t -> t -> t -> (t -> t -> t -> Bool, String)
--- gg x y z = (\a b c -> fixed a && fixed b && fixed c, unwords $ map f [x,y,z])
-
--- f :: (Show a, Fixable a) => a -> String
--- f x = if fixed x then show x else "nada"
--- f x | fixed x = show $ x
---     | True    = "nada"
-
--- f' :: (Show a, Fixable a) => a -> a -> String
--- f' x y = show $ map f [x,y]
-
--- g :: (Show a, Show a1, Show a2, Fixable a, Fixable a1, Fixable a2) => a -> a1 -> a2 -> String
--- g x y z = unwords [f x, f y, f z]
-
--- h :: (Num a, Fixable a) => a -> a
--- h x | fixed x = x + 1
---     | True    = 1000
 
 
 res1 :: (                    Fix a -> t) -> t
@@ -155,76 +131,18 @@ t2    _       _        _ _ = (-1000)
 -- tt :: (Eq a, Eq b) => Fix a -> Fix b -> (Fix a, Fix b)
 -- tt x y = (x,y)
 
+-- I know it's not kosher to leave previous versions lying around in comments, but making the below work took a long time and I'm not willing to let it vanish just yet.
 
-----------------------------------------------------------------------------------------------------
--- I dream of extentions...
+-- class Resolution b => RFix a b | a -> b where
+--   rfix :: a -> b
 
--- f :: Fix a -> Fix b ->     c |>
---          a ->     b ->     c
--- f' x y = f (Fixed x) (Fixed y)
+-- instance (Resolution x, Resolution y, x ~ FWrapper a b, y ~ FWrapper c d, x ~ y) => RFix x y where
+--   rfix = id
 
--- f ::  an0 -> an1 -> .. -> anm |>
---        .      .           .
---        .      .           .
---        ^      ^           |
---        |      |           v
---       a10 -> a11 -> .. -> a1m |>
---        ^      ^           |
---        |      |           v
---       a00 -> a01 -> .. -> a0m
+-- instance Resolution b => RFix (Fix Int -> b) b where
+--   rfix :: (Fix Int -> b) -> b
+--   rfix =        ($ Unfixed)
 
--- fn = demote n $ f(n-1) (promote x0) (promote x1) .. (promote xm)
---  .          .    .               .            .              .
---  .          .    .               .            .              .
--- f2 = demote 2 $ f3     (promote x0) (promote x1) .. (promote xm)
--- f1 = demote 1 $ f2     (promote x0) (promote x1) .. (promote xm)
--- f0 =            f1     (promote x0) (promote x1) .. (promote xm)
-
--- f ::  .   ->   .        .
---       .   ->   .        .
---       ^   ->   ^        |
---       |        |        v
---     [[a]] -> [[b]] -> [[c]] |>
---       ^        ^        |
---       |        |        v
---      [a] ->   [b] ->   [c]
-
--- fn = join^n $ f{n-1} [x0] [x1]
---  .
---  .
--- f1 = join^2 $ f2     [x0] [x1]
--- f0 = join  $ f3     [x0] [x1]
-
--- f ::  .   ->     .          .
---       .   ->     .          .
---       ^   ->     ^          |
---       |          |          v
---   m (m a) -> m (m b) -> m (m c) |>
---       ^          ^          |
---       |          |          v
---      m a  ->    m b  ->    m c
-
--- fn = join^n $ f{n-1} (return x0) (return x1)
---  .
---  .
--- f1 = join^2 $ f2     (return x0) (return x1)
--- f0 = join  $ f3     (return x0) (return x1)
-
--- So we have:
--- - a rectangle of types, related by promotion/demotion
--- - a promoter
--- - a demoter
-
--- - argument xi is any from [a0i, a1i, ..]
--- - all arguments are stored
--- - upon return, all arguments are promoted to highest level of any argument
--- - return value is demoted
--- - actual function may either have the type of the highest level or an arbitrary level
--- - lower levels than defined are automatically generated
--- - promoter/demoter must have a simple inductive type
-
--- - There may be a promoter for *each* input type
--- - The promoter may be either default or specified
-----------------------------------------------------------------------------------------------------
-
-
+-- instance RFix a b => RFix (Fix Int -> a) b where
+--   rfix :: (Fix Int -> a) -> b
+--   rfix = rfix . ($ Unfixed)
