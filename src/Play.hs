@@ -69,14 +69,50 @@ sum3 x y z = fWrap (\x2 y2 z2 -> fromF x x2 + fromF y y2 + fromF z z2, fromFixed
     fromF _       _ = 0
 
 
-class (Resolution b, Resolution d) => RBounce a b c d | a -> b, c -> d, a c -> d where
+--  the depencency a b -> c means exactly that if we have instance1 a b c1 and instance2 a b c2 then c1 ~ c2.
+--  For RBounce, we obviously have a -> b and c -> d, as b and d are particular resolutions, overdetermined by a and b.
+--  What other dependencies do we have? Well, remember that we have
+--    a ~ (Fix x0 -> Fix x1 -> .. -> b)
+--    c ~ (Fix x0 -> Fix x1 -> .. -> d)
+--  So a d -> c, c b -> a
+--  To check that we have everything, lets write out all the possibilities:
+--    a -> b, a -/> c, a -/> d, b -/> a, b -/> c, b -/> d, c -/> a, c -/> b, c -> d, d -/> a, d -/> b, d -/> c
+--    a b -/> c, a b -/> d, a c -> b, a c -> d, a d -> b, a d -> c
+--    b c -> a, b c -> d, b d -/> a, b d -/> c, c d -/> a, c d -/> b
+--    a b c -> d, a b d -> c, a c b -> d, a c d -> b, b c d -> a
+--  Now we cross out all the non-dependencies:
+--    a -> b, c -> d
+--    a c -> b, a c -> d, a d -> b, a d -> c
+--    b c -> a, b c -> d
+--    a b c -> d, a b d -> c, a c b -> d, a c d -> b, b c d -> a
+--  Now we cross out all dependencies which are a weaker form of another (for example, cross out `a b c -> d` because we have the much stronger `c -> d`):
+--    a -> b, c -> d
+--    a d -> c
+--    b c -> a
+--  Much better. Now we can consolidate to the following class declaration:
+
+class (Resolution b, Resolution d) => RBounce a b c d | a -> b, c -> d, a d -> c, b c -> a where
   rbounce :: (b -> d) -> a -> c
+
+-- Note that with this class declaration and instance, the following type is inferred by ghci:
+-- rbounce id fWrap :: RBounce ((a, b) -> FWrapper a b) d c d => c
+-- Note that although there is no instance for ((a -> b) -> FWrapper a b), the fact that any instance sayisfying
+--  these constraints must have the same FWrapper type (because if id :: a -> b then a ~ b).
 
 -- instance (Resolution x, Resolution y, Resolution z, Resolution w, x ~ FWrapper a b, y ~ FWrapper c d, z ~ FWrapper e f, w ~ FWrapper g h, x ~ y, z ~ w) => RBounce x y z w where
 --   rbounce = ($)
 
 instance (Constant a, RBounce x y z w) => RBounce (Fix a -> x) y (Fix a -> z) w where
   rbounce f b = \x -> rbounce f (b x)
+
+
+
+
+-- I leave the old declaration below, because I might wonder how different it is after finding frustrations with the new one..
+-- class (Resolution b, Resolution d) => RBounce a b c d | a -> b, c -> d, a c -> d where
+--   rbounce :: (b -> d) -> a -> c
+
+
 
 -- instance (Resolution x, Resolution y, x ~ FWrapper a b, y ~ FWrapper c d, x ~ y) => RBounce x y where
 --   rbounce :: (Resolution w, w ~ FWrapper e f) => (y -> z) -> x -> w
