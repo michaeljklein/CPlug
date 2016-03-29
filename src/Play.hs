@@ -14,8 +14,8 @@
 -- {-# LANGUAGE ExistentialQuantification #-}
 -- {-# LANGUAGE RankNTypes #-}
 -- {-# LANGUAGE ScopedTypeVariables #-}
-{-# LANGUAGE OverlappingInstances #-}
-{-# LANGUAGE IncoherentInstances #-}
+-- {-# LANGUAGE OverlappingInstances #-}
+-- {-# LANGUAGE IncoherentInstances #-}
 
 import FixData
 
@@ -91,26 +91,52 @@ sum3 x y z = fWrap (\x2 y2 z2 -> fromF x x2 + fromF y y2 + fromF z z2, fromFixed
 --    b c -> a
 --  Much better. Now we can consolidate to the following class declaration:
 
+-- class (Resolution b, Resolution d) => RBounce a b c d | a -> b, c -> d, a d -> c, b c -> a where
+--   rbounce :: (b -> d) -> a -> c
+
 class (Resolution b, Resolution d) => RBounce a b c d | a -> b, c -> d, a d -> c, b c -> a where
   rbounce :: (b -> d) -> a -> c
+
+
+-- instance (Resolution x, Resolution y, Resolution z, Resolution w, x ~ FWrapper a b, y ~ FWrapper c d, z ~ FWrapper e f, w ~ FWrapper g h, x ~ y, z ~ w) => RBounce x y z w where
+--   rbounce = ($)
+
+-- instance (Resolution x, Resolution y, x ~ FWrapper a b, y ~ FWrapper c d, x ~ y, Resolution z, Resolution w, z ~ FWrapper e f, w ~ FWrapper g h, z ~ w) => RBounce x y z w where
+--   rbounce = undefined
+
+-- instance (RFix x y, RFix z w, x ~ y, y ~ z, z ~ w) => RBounce x y z w where
+--   rbounce = undefined
+
+-- instance (Resolution b, b ~ FWrapper x y, a ~ b, b ~ c, c ~ d) => RBounce a b c d where
+--   rbounce f b = f b
+
+instance (Resolution b, b ~ FWrapper x y, a ~ b) => RBounce a b c d where
+  rbounce = ($)
+
+instance (Constant a, RBounce b c d e) => RBounce (Fix a -> b) c (Fix a -> d) e where
+  rbounce f b = \x -> rbounce f (b x)
+
+
 
 -- Note that with this class declaration and instance, the following type is inferred by ghci:
 -- rbounce id fWrap :: RBounce ((a, b) -> FWrapper a b) d c d => c
 -- Note that although there is no instance for ((a -> b) -> FWrapper a b), the fact that any instance sayisfying
 --  these constraints must have the same FWrapper type (because if id :: a -> b then a ~ b).
 
--- instance (Resolution x, Resolution y, Resolution z, Resolution w, x ~ FWrapper a b, y ~ FWrapper c d, z ~ FWrapper e f, w ~ FWrapper g h, x ~ y, z ~ w) => RBounce x y z w where
---   rbounce = ($)
 
-instance (Constant a, RBounce x y z w) => RBounce (Fix a -> x) y (Fix a -> z) w where
-  rbounce f b = \x -> rbounce f (b x)
+-- instance (Constant a, RBounce x y z w) => RBounce (Fix a -> x) y (Fix a -> z) w where
+--   rbounce f b = \x -> rbounce f (b x)
 
-
+dum x = fWrap (const (isFixed x), isFixed x)
 
 
 -- I leave the old declaration below, because I might wonder how different it is after finding frustrations with the new one..
 -- class (Resolution b, Resolution d) => RBounce a b c d | a -> b, c -> d, a c -> d where
 --   rbounce :: (b -> d) -> a -> c
+
+
+
+
 
 
 
