@@ -14,10 +14,14 @@
 -- {-# LANGUAGE ExistentialQuantification #-}
 -- {-# LANGUAGE RankNTypes #-}
 -- {-# LANGUAGE ScopedTypeVariables #-}
--- {-# LANGUAGE OverlappingInstances #-}
+{-# LANGUAGE OverlappingInstances #-}
 -- {-# LANGUAGE IncoherentInstances #-}
+{-# LANGUAGE TypeOperators #-}
+
+module Play where
 
 import FixData
+import Data.Constraint
 
 data FWrapper f c = FWrapper f c
 instance Show b => Show (FWrapper a b) where
@@ -94,24 +98,27 @@ sum3 x y z = fWrap (\x2 y2 z2 -> fromF x x2 + fromF y y2 + fromF z z2, fromFixed
 -- class (Resolution b, Resolution d) => RBounce a b c d | a -> b, c -> d, a d -> c, b c -> a where
 --   rbounce :: (b -> d) -> a -> c
 
+rbounce' f b x = let y = rbounce f b in y $! x
+
 class (Resolution b, Resolution d) => RBounce a b c d | a -> b, c -> d, a d -> c, b c -> a where
   rbounce :: (b -> d) -> a -> c
 
+instance (Resolution b, Resolution d, b ~ FWrapper x y, d ~ FWrapper z w, a ~ b, c ~ d) => RBounce a b c d where
+  rbounce :: (b -> d) -> a -> c
+  rbounce = ($)
+
+-- q = (rbounce id dum) $! Unfixed
+-- q = rbounce id dum
+-- qq = q Unfixed
 
 -- instance (Resolution x, Resolution y, Resolution z, Resolution w, x ~ FWrapper a b, y ~ FWrapper c d, z ~ FWrapper e f, w ~ FWrapper g h, x ~ y, z ~ w) => RBounce x y z w where
 --   rbounce = ($)
 
--- instance (Resolution x, Resolution y, x ~ FWrapper a b, y ~ FWrapper c d, x ~ y, Resolution z, Resolution w, z ~ FWrapper e f, w ~ FWrapper g h, z ~ w) => RBounce x y z w where
---   rbounce = undefined
+-- instance (Resolution b, a ~ b, Resolution d, c ~ d) => RBounce a b c d where
+  -- rbounce = ($)
 
--- instance (RFix x y, RFix z w, x ~ y, y ~ z, z ~ w) => RBounce x y z w where
---   rbounce = undefined
-
--- instance (Resolution b, b ~ FWrapper x y, a ~ b, b ~ c, c ~ d) => RBounce a b c d where
---   rbounce f b = f b
-
-instance (Resolution b, b ~ FWrapper x y, a ~ b) => RBounce a b c d where
-  rbounce = ($)
+-- instance (Resolution b, b ~ FWrapper x y, a ~ b) => RBounce a b c d where
+--   rbounce = ($)
 
 instance (Constant a, RBounce b c d e) => RBounce (Fix a -> b) c (Fix a -> d) e where
   rbounce f b = \x -> rbounce f (b x)

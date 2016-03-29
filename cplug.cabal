@@ -15,9 +15,9 @@ cabal-version:       >=1.10
 
 library
   hs-source-dirs:      src
-  exposed-modules:     Lib, CTemplates
+  exposed-modules:     Lib, Play
   extensions:          TemplateHaskell
-  build-depends:       base >= 4.7 && < 5, template-haskell >= 2.10 && < 2.11, text >= 1.2.2 && < 1.2.3, attoparsec >= 0.13 && < 0.13.1, language-c >= 0.4.7 && < 0.6
+  build-depends:       base >= 4.7 && < 5, template-haskell >= 2.10 && < 2.11, text >= 1.2.2 && < 1.2.3, attoparsec >= 0.13 && < 0.13.1, language-c >= 0.4.7 && < 0.6, constraints >= 0.6 && < 1.0
   default-language:    Haskell2010
 
 executable cplug-main
