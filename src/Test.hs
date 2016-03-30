@@ -1,31 +1,53 @@
-{-# DataKinds #-}
-import System.Environment (getArgs)
-data Nat = Zero | Succ Nat
+{-# INCLUDE <test2.h> #-}
+{-# INCLUDE "test2.c" #-}
+{-# LANGUAGE ForeignFunctionInterface #-}
 
-toNat :: Int -> Nat
-toNat 0 = Zero
-toNat n = Succ (toNat (n-1))
+module Main (c_add) where
 
-fromNat :: Nat -> Int
-fromNat Zero = 0
-fromNat (Succ n) = 1 + fromNat n
+import Foreign
+import Foreign.C.Types
 
--- tester = fromNat . toNat
+foreign import ccall "test2.h add"
+     c_add :: CInt -> CInt -> CInt
 
-data N a = Z | T (Z,N a)
 
-fromNat2 :: N a -> Int
-fromNat2 Z = 0
-fromNat2 (T (_,z)) = 1 + fromNat2 z
 
-toNat2 :: Int -> N a
-toNat2 0 = Z
-toNat2 n = T (Z,toNat2 (n-1))
 
-tester = fromNat2.toNat2
 
+
+
+
+{-
+
+
+
+{-# LANGUAGE ForeignFunctionInterface #-}
+module Main(main) where
+
+-- we need CDouble for C's double type; Haskell's Double may be different
+import Foreign.C.Types(CDouble(..))
+-- we need function pointer type and free function
+import Foreign.Ptr(FunPtr, freeHaskellFunPtr)
+
+-- a "wrapper" import gives a factory for converting a Haskell function to a foreign function pointer
+foreign import ccall "wrapper"
+  wrap :: (CDouble -> CDouble) -> IO (FunPtr (CDouble -> CDouble))
+
+-- import the foreign function as normal
+foreign import ccall "callerback.h twice"
+  twice :: FunPtr (CDouble -> CDouble) -> CDouble -> IO CDouble
+
+-- here's the function to use as a callback
+square :: CDouble -> CDouble
+square x = x * x
+
+main :: IO ()
 main = do
-  args <- getArgs
-  let arg = head args
-  let n = read arg :: Int
-  print $ tester n
+  squareW <- wrap square     -- make function pointer from the function
+  let x = 4
+  y <- twice squareW x       -- use the foreign function with our callback
+  z <- twice squareW y
+  print y                    -- see that it worked
+  print z
+  freeHaskellFunPtr squareW  -- clean up after ourselves
+-}

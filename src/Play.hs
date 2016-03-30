@@ -16,7 +16,7 @@
 -- {-# LANGUAGE ScopedTypeVariables #-}
 {-# LANGUAGE OverlappingInstances #-}
 -- {-# LANGUAGE IncoherentInstances #-}
-{-# LANGUAGE TypeOperators #-}
+-- {-# LANGUAGE TypeOperators #-}
 
 module Play where
 

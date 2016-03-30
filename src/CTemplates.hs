@@ -1,11 +1,23 @@
-module CTemplates () where
+module CTemplates where
 
-import qualified Data.Text as T
+-- import qualified Data.Text as T
 import Language.C
 -- import qualified Data.Attoparsec.Text as A
 -- import qualified Data.Attoparsec.Combinator as AC
 
+fromRight (Right x) = x
 
+parsed = let fl = "src/test.c" in do {is <- readInputStream fl; return $ fromRight $ flip parseC (initPos fl) is}
+
+splitCT (CTranslUnit ctransunit nodeinfo) = (ctransunit, nodeinfo)
+
+
+
+
+
+
+
+{-
 -- | `CTemplate` consists of a list of `Header`'s, a list of `Declaration`'s, and an initialization `Declaration`.
 data CTemplate = CTemplate [CHeader] [CDeclaration] CDeclaration deriving (Show, Eq)
 
@@ -47,6 +59,8 @@ data CSIntegral = CSChar      |
 
 data CFloating =  CFloat      |
                   CDouble     deriving (Show, Eq)
+
+-}
 
 
 
