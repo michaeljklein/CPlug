@@ -25,31 +25,33 @@ Plan of attack:
 15)   Piped caller unpacks c-string from pipe and returns to Haskell
 16)   Result of computation is received by Haskell
 
+Acheived:
+- Be able to apply arguments to the C functions in any order and recompile
+- Be able to strip "pure" C function from Compilable version
+
 
 Goals:
 - Generate a Haskell Module from a .c file
-- Automatically generate (HaskellCType a -> CTypeString) functions
+- Automatically generate (HaskellCType a -> CTypeString) functions (should probably double-check, but `Data.Text.Lazy.Builder.Int` could probably cover almost everything..)
 - Have imported functions be recompilable
-- Be able to apply arguments to the C functions in any order and recompile
-- Be able to strip "pure" C function from Compilable version
 - Be able to mark C functions as safe/unsafe within the .c file
 - Be able to extract single functions from a .c file
-- Be able to pull used functions from headers and drop rest
-- Have a natural interface to use the Compilable C functions within Haskell
+- Have a natural interface to use the Compilable C functions within Haskell (almost there..)
 - Be type safe, if compilation fails, return original function (which will always exist since a version will have to compile for the module to compile)
 - Utilize carray
-- Be fast
+- Be fast (fast calling, relative to native C/Haskell, will not happen. Pipes are not too shabby though, iirc they clocked ~10s for ~30 MB on "average" machines.)
 
 Antigoals:
-- Optimize C or Haskell code
+- Optimize C or Haskell code (except what gcc/clang does)
 - Parse anything other than declarations (ok, maybe "mentions" of things in body, but only if I don't roll my own parser)
 - Generate C code with different syntax on the fly
 - Modify the types of the Haskell module functions (except for application/extraction)
-- Get fancy with compilation options
+- Get fancy with compilation options (actually, considering a `CompilationOptions` datatype that would cover this, but still push any non-default configuration to the user)
 - Use TemplateHaskell
-- Worry about structs
+- Worry about structs (not going to worry, but Language.C should be able to handle them without too much effort)
+- Detect most common arguments (based on last N in stream) and automatically recompile (since the project has switched slightly to leave out the "call lots of times in a row quickly" use-case, this is now an antigoal).
 
 Possible Goals:
-- Allow the passing/accepting of (limited) Haskell types by the C functions
-- Detect most common arguments (based on last N in stream) and automatically recompile
+- Allow the passing/accepting of (limited) Haskell types by the C functions (would it be as easy as ... no, probably not, no matter how you finish that).
+- Be able to pull used functions from headers and drop rest (might be out of scope of the project and really not necessary as pointer functions are dropped anyway, such as `main()`)
 
