@@ -54,4 +54,4 @@ Antigoals:
 Possible Goals:
 - Allow the passing/accepting of (limited) Haskell types by the C functions (would it be as easy as ... no, probably not, no matter how you finish that).
 - Be able to pull used functions from headers and drop rest (might be out of scope of the project and really not necessary as pointer functions are dropped anyway, such as `main()`)
-
+- By the time this is finished, there could be enough interface to generate SWIG bindings without too much trouble so, when the time comes, I'll look into that.
