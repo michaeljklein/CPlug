@@ -1,15 +1,15 @@
-      52 text files.
-classified 52 files      51 unique files.                              
+      58 text files.
+classified 58 files      57 unique files.                              
       22 files ignored.
 
-http://cloc.sourceforge.net v 1.64  T=2.03 s (15.8 files/s, 793.6 lines/s)
+http://cloc.sourceforge.net v 1.64  T=2.59 s (14.7 files/s, 702.2 lines/s)
 -------------------------------------------------------------------------------
 Language                     files          blank        comment           code
 -------------------------------------------------------------------------------
-Haskell                         20            324            437            413
-C                                7             39             21            216
+Haskell                         24            315            361            533
+C                                9             83             28            339
 C/C++ Header                     4             20             17             88
 YAML                             1              9             17              6
 -------------------------------------------------------------------------------
-SUM:                            32            392            492            723
+SUM:                            38            427            423            966
 -------------------------------------------------------------------------------

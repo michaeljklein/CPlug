@@ -1,217 +1,129 @@
-module CGen.Typed () where
+module CGen.Typed where
 
 import Foreign.C.Types
+import qualified Data.Text as T (Text, snoc)
+import Texshowt (showt)
+
+addUnsigned :: T.Text -> T.Text
+addUnsigned = T.snoc 'U'
+
+addLong :: T.Text -> T.Text
+addLong = T.snoc 'L'
 
 class CShow a where
   showForC :: a -> T.Text
 
+instance CShow CChar where
+  showForC = showt
 
--- Skip most of this and just make a .h file with all the definitions plus unit tests
-class Pipeable a where
-  readPiped   :: CStringLen -> a
-  writePiped  :: a -> CStringLen
-  cPipeReader :: (T.Text, T.Text) -- Of form (name, code)
-  cPipeWriter :: (T.Text, T.Text) -- Of form (name, code)
+instance CShow CShort where
+  showForC = showt
 
+instance CShow addLong where
+  showForC = addLong . showt
 
-rawCCharReader :: [String]
-rawCCharReader = ["void char_reader(FILE *ptr, char * buffer){",
-                  "  buffer[0] = getc(ptr);                   ",
-                  "}                                          "]
+instance CShow CPtrdiff where
+  showForC = showt
 
-rawCCharWriter :: [String]
-rawCCharWriter = ["int  char_writer(char * buffer, FILE *ptr){",
-                  "  return putc(buffer[0], ptr);             ",
-                  "}                                          "]
+instance CShow CLaddLong where
+  showForC = addLong . addLong . showt
 
-instance Pipeable CChar where
-  readPiped   =
-  writePiped  =
-  cPipeReader = (T.pack "char_reader", packUnlines rawCCharReader)
-  cPipeWriter = (T.pack "char_writer", packUnlines rawCCharWriter)
+instance CShow CIntPtr where
+  showForC = showt
 
-instance Pipeable CChar where
-  readPiped   =
-  writePiped  =
-  cPipeReader = (T.pack "", )
-  cPipeWriter = (T.pack "", )
+instance CShow CClock where
+  showForC = showt
 
-instance Pipeable CSChar where
-  readPiped   =
-  writePiped  =
-  cPipeReader = (T.pack "", )
-  cPipeWriter = (T.pack "", )
+instance CShow CFloat where
+  showForC = showt
 
-instance Pipeable CUChar where
-  readPiped   =
-  writePiped  =
-  cPipeReader = (T.pack "", )
-  cPipeWriter = (T.pack "", )
+instance CShow CFile where
+  showForC = showt
 
-instance Pipeable CShort where
-  readPiped   =
-  writePiped  =
-  cPipeReader = (T.pack "", )
-  cPipeWriter = (T.pack "", )
+instance CShow CSChar where
+  showForC = showt
 
-instance Pipeable CUShort where
-  readPiped   =
-  writePiped  =
-  cPipeReader = (T.pack "", )
-  cPipeWriter = (T.pack "", )
+instance CShow CUShort where
+  showForC = addUnsigned . showt
 
-instance Pipeable CInt where
-  readPiped   =
-  writePiped  =
-  cPipeReader = (T.pack "", )
-  cPipeWriter = (T.pack "", )
+instance CShow CUaddLong where
+  showForC = addLong . addUnsigned . showt
 
-instance Pipeable CUInt where
-  readPiped   =
-  writePiped  =
-  cPipeReader = (T.pack "", )
-  cPipeWriter = (T.pack "", )
+instance CShow CSize where
+  showForC = showt
 
-instance Pipeable CLong where
-  readPiped   =
-  writePiped  =
-  cPipeReader = (T.pack "", )
-  cPipeWriter = (T.pack "", )
+instance CShow CULaddLong where
+  showForC = addLong . addLong . addUnsigned . showt
 
-instance Pipeable CULong where
-  readPiped   =
-  writePiped  =
-  cPipeReader = (T.pack "", )
-  cPipeWriter = (T.pack "", )
+instance CShow CUIntPtr where
+  showForC = addUnsigned . showt
 
-instance Pipeable CPtrdiff where
-  readPiped   =
-  writePiped  =
-  cPipeReader = (T.pack "", )
-  cPipeWriter = (T.pack "", )
+instance CShow CTime where
+  showForC = showt
 
-instance Pipeable CSize where
-  readPiped   =
-  writePiped  =
-  cPipeReader = (T.pack "", )
-  cPipeWriter = (T.pack "", )
+instance CShow CDouble where
+  showForC = showt
 
-instance Pipeable CWchar where
-  readPiped   =
-  writePiped  =
-  cPipeReader = (T.pack "", )
-  cPipeWriter = (T.pack "", )
+instance CShow CFpos where
+  showForC = showt
 
-instance Pipeable CSigAtomic where
-  readPiped   =
-  writePiped  =
-  cPipeReader = (T.pack "", )
-  cPipeWriter = (T.pack "", )
+instance CShow CJmpBuf where
+  showForC = showt
 
-instance Pipeable CLLong where
-  readPiped   =
-  writePiped  =
-  cPipeReader = (T.pack "", )
-  cPipeWriter = (T.pack "", )
+instance CShow CUChar where
+  showForC = addUnsigned . showt
 
-instance Pipeable CULLong where
-  readPiped   =
-  writePiped  =
-  cPipeReader = (T.pack "", )
-  cPipeWriter = (T.pack "", )
+instance CShow CInt where
+  showForC = showt
 
-instance Pipeable CIntPtr where
-  readPiped   =
-  writePiped  =
-  cPipeReader = (T.pack "", )
-  cPipeWriter = (T.pack "", )
+instance CShow CWchar where
+  showForC = showt
 
-instance Pipeable CUIntPtr where
-  readPiped   =
-  writePiped  =
-  cPipeReader = (T.pack "", )
-  cPipeWriter = (T.pack "", )
+instance CShow CIntMax where
+  showForC = showt
 
-instance Pipeable CIntMax where
-  readPiped   =
-  writePiped  =
-  cPipeReader = (T.pack "", )
-  cPipeWriter = (T.pack "", )
+instance CShow CUSeconds where
+  showForC = showt
 
-instance Pipeable CUIntMax where
-  readPiped   =
-  writePiped  =
-  cPipeReader = (T.pack "", )
-  cPipeWriter = (T.pack "", )
+instance CShow CUInt where
+  showForC = addUnsigned . showt
 
-instance Pipeable CClock where
-  readPiped   =
-  writePiped  =
-  cPipeReader = (T.pack "", )
-  cPipeWriter = (T.pack "", )
+instance CShow CSigAtomic where
+  showForC = showt
 
-instance Pipeable CTime where
-  readPiped   =
-  writePiped  =
-  cPipeReader = (T.pack "", )
-  cPipeWriter = (T.pack "", )
+instance CShow CUIntMax where
+  showForC = showt
 
-instance Pipeable CUSeconds where
-  readPiped   =
-  writePiped  =
-  cPipeReader = (T.pack "", )
-  cPipeWriter = (T.pack "", )
-
-instance Pipeable CSUSeconds where
-  readPiped   =
-  writePiped  =
-  cPipeReader = (T.pack "", )
-  cPipeWriter = (T.pack "", )
-
-instance Pipeable CFloat where
-  readPiped   =
-  writePiped  =
-  cPipeReader = (T.pack "", )
-  cPipeWriter = (T.pack "", )
-
-instance Pipeable CDouble where
-  readPiped   =
-  writePiped  =
-  cPipeReader = (T.pack "", )
-  cPipeWriter = (T.pack "", )
-
--- I don't think these can be sent...
--- instance Pipeable CFile where
---   readPiped   =
---   writePiped  =
---   cPipeReader = (T.pack "", )
---   cPipeWriter = (T.pack "", )
-
--- instance Pipeable CFpos where
---   readPiped   =
---   writePiped  =
---   cPipeReader = (T.pack "", )
---   cPipeWriter = (T.pack "", )
-
--- instance Pipeable CJmpBuf where
---   readPiped   =
---   writePiped  =
---   cPipeReader = (T.pack "", )
---   cPipeWriter = (T.pack "", )
+instance CShow CSUSeconds where
+  showForC = showt
 
 
 
-          CChar,    CSChar,   CUChar
-        , CShort,   CUShort,  CInt,      CUInt
-        , CLong,    CULong
-        , CPtrdiff, CSize,    CWchar,    CSigAtomic
-        , CLLong,   CULLong
-        , CIntPtr,  CUIntPtr, CIntMax,   CUIntMax
-        , CClock,   CTime,    CUSeconds, CSUSeconds
-        , CFloat,   CDouble
-        , CFile,        CFpos,     CJmpBuf
-        ) where
-
-LLU
-U
-LL
+-- CChar
+-- CShort
+-- Long
+-- CPtrdiff
+-- CLLong
+-- CIntPtr
+-- CClock
+-- CFloat
+-- CFile
+-- CSChar
+-- CUShort
+-- CULong
+-- CSize
+-- CULLong
+-- CUIntPtr
+-- CTime
+-- CDouble
+-- CFpos
+-- CJmpBuf
+-- CUChar
+-- CInt
+-- CWchar
+-- CIntMax
+-- CUSeconds
+-- CUInt
+-- CSigAtomic
+-- CUIntMax
+-- CSUSeconds
