@@ -1,15 +1,13 @@
 {-# LANGUAGE FlexibleContexts #-}
 module Parse where
 
--- import Parse.Types
--- import Parse.Templates
 import Aux (apFst, lastTup, tupToList)
 import Control.Monad (join, liftM, liftM2, liftM4, when)
 import Data.Either.Aux (fromLeft, fromRight, mapLeft, unsafeFromLeft)
 import Data.Maybe
-import Data.Text.Aux (parens, showt, prettyShowt)
 import Data.Tuple (swap)
 import qualified Data.Text as T (Text, pack, strip, unwords, words)
+import Data.Text.Aux (prettyShowt)
 import Language.C.Data.Ident
 import Language.C.Parser (parseC)
 import Language.C.Data.InputStream (readInputStream)
@@ -17,7 +15,7 @@ import Language.C.Data.Position (initPos)
 import Language.C.Syntax.AST
 import Language.C.Pretty
 import System.IO.Unsafe (unsafePerformIO)
-import Parse.Templates (CFunctionTemplate(..), functionBody, functionName, inputVars, returnType)
+import Parse.Templates (CFunctionTemplate(..))
 
 -------------------------------------------------------------------------------------------------------------------------------------------------------
 
@@ -155,6 +153,3 @@ mkCFunTempl = liftM4 (liftM4 CFunTempl) getFunctionReturnTypeText getFunctionNam
 
 mkCFunTempls :: (Monad m, Pretty (CStatement t), Pretty (CDeclarationSpecifier t), Pretty (CDeclaration t)) => m (Maybe [CExternalDeclaration t]) -> m [CFunctionTemplate]
 mkCFunTempls = liftM (join . maybeToList . liftM (mapMaybe mkCFunTempl))
-
-
-

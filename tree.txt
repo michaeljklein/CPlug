@@ -1,0 +1,81 @@
+.
+├── LICENSE
+├── README.md
+├── Setup.hs
+├── app
+│   └── Main.hs
+├── cplug.cabal
+├── oldsrc
+│   ├── CTemplates.hs
+│   ├── CTypes.hs
+│   ├── FixData.hs
+│   ├── Lib.hs
+│   ├── Notes.txt
+│   ├── Play.hs
+│   ├── Test.hi
+│   ├── Test.hs
+│   ├── a.out
+│   ├── pipex
+│   │   ├── caller.c
+│   │   ├── echo
+│   │   ├── echo.c
+│   │   └── runner.c
+│   ├── tc
+│   │   ├── FfiEx.hs
+│   │   ├── Termios.hs
+│   │   ├── termops.c
+│   │   └── termops.h
+│   ├── tc2
+│   │   ├── Test.hi
+│   │   ├── Test.hs
+│   │   ├── Test.o
+│   │   ├── a.out
+│   │   ├── add.hi
+│   │   ├── add.hs
+│   │   ├── add.o
+│   │   ├── hadd
+│   │   ├── test
+│   │   ├── test.c
+│   │   └── test.h
+│   ├── test.c
+│   ├── test2
+│   ├── test2.c
+│   ├── test2.h
+│   ├── testc
+│   └── tesths
+├── src
+│   ├── Aux.hs
+│   ├── CGen
+│   │   ├── Typed.hs
+│   │   └── type_list.c
+│   ├── CGen.hs
+│   ├── Data
+│   │   ├── Either
+│   │   │   └── Aux.hs
+│   │   ├── Fixed.hs
+│   │   ├── Text
+│   │   │   └── Aux.hs
+│   │   └── Wrapped.hs
+│   ├── HSGen
+│   │   └── Recompiler
+│   │       ├── Class.hs
+│   │       └── Instances.hs
+│   ├── HSGen.hs
+│   ├── Parse
+│   │   ├── Templates.hs
+│   │   └── Types.hs
+│   ├── Parse.hs
+│   └── cex
+│       ├── m
+│       ├── m.c
+│       ├── m2
+│       ├── m2.c
+│       ├── parse.c
+│       └── t.txt
+├── stack.yaml
+├── stats.txt
+├── test
+│   └── Spec.hs
+└── tree.txt
+
+15 directories, 63 files
