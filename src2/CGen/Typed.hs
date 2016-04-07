@@ -2,7 +2,7 @@ module CGen.Typed where
 
 import Foreign.C.Types
 import qualified Data.Text as T (Text, snoc)
-import Texshowt (showt)
+import Textshow (showt)
 
 addUnsigned :: T.Text -> T.Text
 addUnsigned = T.snoc 'U'
