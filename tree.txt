@@ -5,6 +5,10 @@
 ├── app
 │   └── Main.hs
 ├── cplug.cabal
+├── gitTools
+│   ├── coln.sh
+│   ├── dump_all_versions.sh
+│   └── stats.hs
 ├── oldsrc
 │   ├── CTemplates.hs
 │   ├── CTypes.hs
@@ -78,4 +82,4 @@
 │   └── Spec.hs
 └── tree.txt
 
-15 directories, 63 files
+16 directories, 66 files
