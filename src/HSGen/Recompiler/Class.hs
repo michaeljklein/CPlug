@@ -2,12 +2,13 @@
 {-# LANGUAGE MultiParamTypeClasses #-}
 {-# LANGUAGE InstanceSigs #-}
 {-# LANGUAGE FunctionalDependencies #-}
+{-# LANGUAGE FlexibleContexts #-}
 
-module HSGen.Recomplier.Class (Compilable, ($$), ($$$), compile, flipCompilable,
+module HSGen.Recompiler.Class (Compilable, ($$), ($$$), compile, flipCompilable,
                                 resolve) where
 
-import Data.Fix (Fix)
-import Data.Wrapped (Wrapped)
+import Data.Fixed (Fix(..))
+import Data.Wrapped (Wrapped, unwrapF)
 
 -- | The `Compilable` class allows you to wrap a function in a
 --  compiler/modifier. How? Suppose you have a function
@@ -52,12 +53,11 @@ class Compilable a r b s | a -> r, b ->s, a s -> b, r b -> a where
 ($$) f x = (($x) $$$ f) (Fixed x)
 
 -- | Apply `flip` to both the wrapped (innter) and outer levels
-flipCompilable = flip . (flip $$$)
+flipCompilable = error "not implemented (flipCompilable)" -- flip . (flip $$$)
 
 -- | `compile` takes a `Compilable` and returns it compiled
 --  (the wrapper and compiler are discarded)
-compile :: _
-compile = unwrapF . resolve
+compile = error "not implemented (compile)" -- unwrapF . resolve
 
 -- | `genInstance 0` returns the text for this instance
 instance Compilable (Wrapped f r) (Wrapped f r) (Wrapped g s) (Wrapped g s) where

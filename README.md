@@ -1,29 +1,29 @@
 # CPlug
 
-Note: I set up a small pre-commit script that runs `cloc . | tee stats.txt` to print/show how many lines of code per language, etc. If you are committing, either install CLOC (Count Lines of Code), which can be installed with `brew install cloc`, or delete the script in `.git/hooks`.
+Note: I set up a small pre-commit script that runs `cloc` and `tree` to show the number of lines of code per language and the directory tree. If you are committing, either install CLOC (Count Lines of Code) and tree, which can be installed with `brew install cloc`, `brew install tree`, or delete the script in `.git/hooks`.
 
 Plan of attack:
- 1)   User submits .c/.h files
- 2)   Individual functions are found (Language.C.Parser)
-    2a) Dependencies of each function found
-    2b) Each function is isolated with its dependencies
- 3)   The input/return types of each function are found
- 4)   A piped caller is generated (in c) for each function
+ 1.   User submits .c/.h files
+ 2.   Individual functions are found (Language.C.Parser)
+    2.1. Dependencies of each function found
+    2.2. Each function is isolated with its dependencies
+ 3.   The input/return types of each function are found
+ 4.   A piped caller is generated (in c) for each function
     4a) The piped caller could support null/Nothing arguments
- 5)   A piped runner (c) template (hs) is generated
- 6)   Haskell FFI for the original function/piped caller is generated
- 7)   Haskell function to allow recompilation is generated from (3), (5), (6)
- 8)   The compilable (hs) function supports:
-    8a) Resolution to value if all Fixed (else undefined)
-    8b) Resolution to recompiled function
- 9)   If function is to be recompiled, generate .c (piped runner) code from template
-10)   Call gcc/clang on piped runner.c file
-11)   If errors, return FFI (unpiped) reference, else instantiate piped runner with reference to output of compilation
-12)   When piped caller is called, arguments are packed into c-string and written to pipe
-13)   Piped runner is called on pipe (as argv)
-14)   Piped caller receives result of piped runner
-15)   Piped caller unpacks c-string from pipe and returns to Haskell
-16)   Result of computation is received by Haskell
+ 5.   A piped runner (c) template (hs) is generated
+ 6.   Haskell FFI for the original function/piped caller is generated
+ 7.   Haskell function to allow recompilation is generated from (3), (5), (6)
+ 8.   The compilable (hs) function supports:
+    8.1. Resolution to value if all Fixed (else undefined)
+    8.2. Resolution to recompiled function
+ 9.   If function is to be recompiled, generate .c (piped runner) code from template
+10.   Call gcc/clang on piped runner.c file
+11.   If errors, return FFI (unpiped) reference, else instantiate piped runner with reference to output of compilation
+12.   When piped caller is called, arguments are packed into c-string and written to pipe
+13.   Piped runner is called on pipe (as argv)
+14.   Piped caller receives result of piped runner
+15.   Piped caller unpacks c-string from pipe and returns to Haskell
+16.   Result of computation is received by Haskell
 
 Acheived:
 - Be able to apply arguments to the C functions in any order and recompile

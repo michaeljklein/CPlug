@@ -2,10 +2,10 @@ module HSGen.Recompiler.Instances (classText, genInstance) where
 
 import qualified Data.Text as T (Text, append, cons, empty, intercalate, lines,
                                 pack, singleton, snoc, unlines, unwords, words)
+import Data.Text.Aux (parens, unWordLines, wordLines)
 import Data.Text.Lazy (toStrict)
 import Data.Text.Lazy.Builder (toLazyText)
 import Data.Text.Lazy.Builder.Int (decimal)
-import Data.Text.Extras (parens, unWordLines, wordLines)
 
 -- | `showInt` should be equivalent to `pack . show` for the `Int` type, except
 --  a bit faster since it uses `Text` library functions
@@ -37,6 +37,12 @@ wr = T.pack "Wrapped f r"
 -- | "Wrapped g s"
 ws :: T.Text
 ws = T.pack "Wrapped g s"
+
+makeXs :: Int -> T.Text
+makeXs = T.unwords . map (T.cons 'x' . showInt) . enumFromTo 1
+
+makeUnfixeds :: Int -> T.Text
+makeUnfixeds = T.unwords . flip replicate (T.pack "Unfixed")
 
 -- | `makeLambdaXs 3 == pack "\\x1 x2 x3 ->"`
 makeLambdaXs :: Int -> T.Text
@@ -71,6 +77,6 @@ classStr = ["class Compilable a r b s | a -> r, b ->s, a s -> b, r b -> a where"
 
 -- | Text form of `Compilable`
 classText :: T.Text
-classText = T.pack . map unlines $ classStr
+classText = T.pack . unlines $ classStr
 
 

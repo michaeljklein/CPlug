@@ -1,7 +1,7 @@
 module HSGen where
 
-import HSGen.Recompilable.Class
-import HSGen.Recompilable.Instances
+import HSGen.Recompiler.Class
+import HSGen.Recompiler.Instances
 
 --  HSGen
 --

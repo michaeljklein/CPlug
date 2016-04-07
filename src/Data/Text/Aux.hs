@@ -1,4 +1,7 @@
-module Data.Text.Extras where
+module Data.Text.Aux where
+
+import qualified Data.Text as T (Text, cons, snoc, lines, pack, unlines, unwords, words)
+import Language.C.Pretty (Pretty, pretty)
 
 -- | Add parentheses around a `Text` object
 parens :: T.Text -> T.Text
@@ -18,5 +21,11 @@ packUnlines = T.unlines . map T.pack
 
 packUnwords :: [String] -> T.Text
 packUnwords = T.unwords . map T.pack
+
+showt :: Show a => a -> T.Text
+showt = T.pack . show
+
+prettyShowt :: Pretty p => p -> T.Text
+prettyShowt = T.pack . show . pretty
 
 

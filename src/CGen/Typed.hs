@@ -2,13 +2,13 @@ module CGen.Typed where
 
 import Foreign.C.Types
 import qualified Data.Text as T (Text, snoc)
-import Textshow (showt)
+import TextShow (showt)
 
 addUnsigned :: T.Text -> T.Text
-addUnsigned = T.snoc 'U'
+addUnsigned = flip T.snoc 'U'
 
 addLong :: T.Text -> T.Text
-addLong = T.snoc 'L'
+addLong = flip T.snoc 'L'
 
 class CShow a where
   showForC :: a -> T.Text
@@ -19,13 +19,13 @@ instance CShow CChar where
 instance CShow CShort where
   showForC = showt
 
-instance CShow addLong where
+instance CShow CLong where
   showForC = addLong . showt
 
 instance CShow CPtrdiff where
   showForC = showt
 
-instance CShow CLaddLong where
+instance CShow CLLong where
   showForC = addLong . addLong . showt
 
 instance CShow CIntPtr where
@@ -37,22 +37,19 @@ instance CShow CClock where
 instance CShow CFloat where
   showForC = showt
 
-instance CShow CFile where
-  showForC = showt
-
 instance CShow CSChar where
   showForC = showt
 
 instance CShow CUShort where
   showForC = addUnsigned . showt
 
-instance CShow CUaddLong where
+instance CShow CULong where
   showForC = addLong . addUnsigned . showt
 
 instance CShow CSize where
   showForC = showt
 
-instance CShow CULaddLong where
+instance CShow CULLong where
   showForC = addLong . addLong . addUnsigned . showt
 
 instance CShow CUIntPtr where
@@ -62,12 +59,6 @@ instance CShow CTime where
   showForC = showt
 
 instance CShow CDouble where
-  showForC = showt
-
-instance CShow CFpos where
-  showForC = showt
-
-instance CShow CJmpBuf where
   showForC = showt
 
 instance CShow CUChar where
@@ -97,7 +88,12 @@ instance CShow CUIntMax where
 instance CShow CSUSeconds where
   showForC = showt
 
-
+-- instance CShow CFile where
+--   showForC = showt
+-- instance CShow CFpos where
+--   showForC = showt
+-- instance CShow CJmpBuf where
+--   showForC = showt
 
 -- CChar
 -- CShort

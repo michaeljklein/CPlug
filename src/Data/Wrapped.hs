@@ -1,4 +1,4 @@
-module Data.Wrapped (Wrapped, unwrapC, unwrapF)
+module Data.Wrapped (Wrapped, unwrapC, unwrapF) where
 
 data Wrapped a b = Wrap a b deriving (Eq, Show, Ord)
 
