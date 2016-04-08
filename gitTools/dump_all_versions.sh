@@ -1,3 +1,5 @@
+# http://stackoverflow.com/a/32849134/5154287
+
 ROOT_FOLDER=$(\git rev-parse --show-toplevel)
 CURR_DIR=$(pwd)
 if [ "$ROOT_FOLDER" != "$CURR_DIR" ]

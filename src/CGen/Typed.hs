@@ -4,12 +4,17 @@ import Foreign.C.Types
 import qualified Data.Text as T (Text, snoc)
 import TextShow (showt)
 
+-- | Adds 'U' to the end of a `Text` object
 addUnsigned :: T.Text -> T.Text
 addUnsigned = flip T.snoc 'U'
 
+-- | Adds 'L' to the end of a `Text` object
 addLong :: T.Text -> T.Text
 addLong = flip T.snoc 'L'
 
+-- | This class allows one to `show` objects from "Foreign.C.Types" in a way
+-- that won't throw warnings if used in C code. For example,
+-- 'unsigned long long' literals need the 'ULL' annotation.
 class CShow a where
   showForC :: a -> T.Text
 

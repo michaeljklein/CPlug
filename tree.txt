@@ -5,48 +5,22 @@
 ├── app
 │   └── Main.hs
 ├── cplug.cabal
+├── dispc
+│   ├── Test.hi
+│   ├── Test.hs
+│   ├── Test.o
+│   ├── a.out
+│   ├── add.hi
+│   ├── add.hs
+│   ├── add.o
+│   ├── hadd
+│   ├── test
+│   ├── test.c
+│   └── test.h
 ├── gitTools
 │   ├── coln.sh
 │   ├── dump_all_versions.sh
 │   └── stats.hs
-├── oldsrc
-│   ├── CTemplates.hs
-│   ├── CTypes.hs
-│   ├── FixData.hs
-│   ├── Lib.hs
-│   ├── Notes.txt
-│   ├── Play.hs
-│   ├── Test.hi
-│   ├── Test.hs
-│   ├── a.out
-│   ├── pipex
-│   │   ├── caller.c
-│   │   ├── echo
-│   │   ├── echo.c
-│   │   └── runner.c
-│   ├── tc
-│   │   ├── FfiEx.hs
-│   │   ├── Termios.hs
-│   │   ├── termops.c
-│   │   └── termops.h
-│   ├── tc2
-│   │   ├── Test.hi
-│   │   ├── Test.hs
-│   │   ├── Test.o
-│   │   ├── a.out
-│   │   ├── add.hi
-│   │   ├── add.hs
-│   │   ├── add.o
-│   │   ├── hadd
-│   │   ├── test
-│   │   ├── test.c
-│   │   └── test.h
-│   ├── test.c
-│   ├── test2
-│   ├── test2.c
-│   ├── test2.h
-│   ├── testc
-│   └── tesths
 ├── src
 │   ├── Aux.hs
 │   ├── CGen
@@ -82,4 +56,4 @@
 │   └── Spec.hs
 └── tree.txt
 
-16 directories, 66 files
+13 directories, 43 files

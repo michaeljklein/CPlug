@@ -2,15 +2,7 @@ module HSGen.Recompiler.Instances (classText, genInstance) where
 
 import qualified Data.Text as T (Text, append, cons, empty, intercalate, lines,
                                 pack, singleton, snoc, unlines, unwords, words)
-import Data.Text.Aux (parens, unWordLines, wordLines)
-import Data.Text.Lazy (toStrict)
-import Data.Text.Lazy.Builder (toLazyText)
-import Data.Text.Lazy.Builder.Int (decimal)
-
--- | `showInt` should be equivalent to `pack . show` for the `Int` type, except
---  a bit faster since it uses `Text` library functions
-showInt :: Int -> T.Text
-showInt = toStrict . toLazyText . decimal
+import Data.Text.Aux (parens, showInt, unWordLines, wordLines)
 
 -- | Example: `oneFix 13 = Text.pack "Fix a32"`
 oneFix :: Int -> T.Text
