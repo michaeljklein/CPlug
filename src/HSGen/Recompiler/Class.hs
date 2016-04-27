@@ -1,87 +1,130 @@
-{-# LANGUAGE FlexibleInstances #-}
-{-# LANGUAGE MultiParamTypeClasses #-}
-{-# LANGUAGE InstanceSigs #-}
-{-# LANGUAGE FunctionalDependencies #-}
 {-# LANGUAGE FlexibleContexts #-}
+{-# LANGUAGE FlexibleInstances #-}
+{-# LANGUAGE FunctionalDependencies #-}
+{-# LANGUAGE InstanceSigs #-}
+{-# LANGUAGE MultiParamTypeClasses #-}
+{-# LANGUAGE UndecidableInstances #-}
 
-module HSGen.Recompiler.Class (Compilable, ($$), ($$$), compile, flipCompilable,
-                                resolve) where
+-- {-# LANGUAGE AllowAmbiguousTypes #-}
+-- {-# LANGUAGE TypeFamilies #-}
+-- {-# LANGUAGE KindSignatures #-}
+-- {-# LANGUAGE ConstraintKinds #-}
+-- {-# LANGUAGE RankNTypes #-}
 
-import Data.Fixed (Fix(..))
-import Data.Wrapped (Wrapped, unwrapF)
+module HSGen.Recompiler.Class where
 
--- | The `Compilable` class allows you to wrap a function in a
---  compiler/modifier. How? Suppose you have a function
---
--- > sum3 = \x y z -> x + y + z :: Num a => a -> a -> a -> a
---
---  and a method which simplifies '\x y z -> x + y + z' into
---  '\x y -> (x + y +)', where 'x + y' is evaluated exactly once instead of
---  every time the function is called. `Compilable` allows you to combine
---  these into a function:
---
--- > f' :: Num a -> Fix a -> Fix a -> Fix a -> Wrapped (a -> a -> a -> a) a
---
---  Where regular "fixed" arguments, such as `0`, are passed as `Fix 0` and \"no
---  argument\" is passed as `Unfixed`. When `f'` is evaluated, it returns a
---  `Wrapper` containing the function compiled, but with blank ('\ _ ->')
---  arguments where `Fixed` were passed, and the result of evaluating the
---  function. This means that you can 1) use the function normally, but with
---  `Fixed` added to the arguments, 2) return a result of the return type
---  without applying all of the arguments, 3) utilize laziness to only compile
---  when the function from the `Wrapper` is called. Here's an example:
---
---  @
---  sum3 :: Fix Int -> Fix Int -> Fix Int -> Wrapper (Int -> Int -> Int -> Int) Int
---  sum3 x y z | isFixed x && isFixed y = Wrap (\__c -> (fromFixed x + fromFixed y) + c) undefined
---             | otherwise              = Wrap (\a b c -> a + b + c) (sum . map fromFixed $ [x,y,z])
---  @
---
---  Although not all cases are covered, and supposing that the
---  '(fromFixed x + fromFixed y)' is evaluated only once, 'sum3 1 2' should be
---  equivalent to '(+ 3)', as far as evaluation. (Although the poper order of
---  operations can be hard to ensure, the intended use case includes `IO` so this
---  is less of a concern).
---
-class Compilable a r b s | a -> r, b ->s, a s -> b, r b -> a where
-  -- | `resolve` has the effective type of
-  --  `(Fix a0 -> .. -> Fix ai -> r) -> r`, which means it basically applies
-  -- its input to `Unfixed` until it has type `Wrapped _ _`.
+import Control.Monad (ap)
+import Data.Default.Aux
+import Data.Fixable (Fix(..))
+import Data.Undefined
+import Data.Wrapped (Wrapped(..), unwrapF, wrappedAp, defWrap)
+
+infixl 1 $$
+infixr 2 $$$
+infixr 2 ###
+
+
+-- | This class is of functions with type `a` and final return type `r`.
+-- Additionally, `r` should be of the form: `Wrapped` a b
+class Resolvable a r | a -> r where
+  -- | `resolve` resolves a "`Resolvable` a r" to `r`
   resolve :: a -> r
 
+instance Resolvable (Wrapped a b) (Wrapped a b) where
+  resolve :: Wrapped a b -> Wrapped a b
+  resolve w = w
+
+instance (Resolvable a r) => Resolvable (t -> a) r where
+  resolve :: (t -> a) -> r
+  resolve w = resolve $ w undefined
+
+
+class Compilable a r b s | a -> r, b -> s, a s -> b, r b -> a where
   -- | `($$$) f wrappedFunction` essentially applies `f` directly to the
   --  `Wrapped` part of `wrappedFunction`.
   ($$$) :: (r -> s) -> a -> b
 
--- | '($$)' is analogous to '($)', except that it takes a `Compilable`,
---  wrapped function.
-($$) :: Compilable a (a1 -> s) (Fix a1 -> t) s => a -> a1 -> t
-($$) f x = (($x) $$$ f) (Fixed x)
+instance Compilable (Wrapped a b) (Wrapped a b) (Wrapped c d) (Wrapped c d) where
+  ($$$) :: (Wrapped a b -> Wrapped c d) -> Wrapped a b -> Wrapped c d
+  ($$$) f = f
 
--- | Apply `flip` to both the wrapped (innter) and outer levels
-flipCompilable = error "not implemented (flipCompilable)" -- flip . (flip $$$)
+instance (Compilable a r b s) => Compilable (t -> a) r (t -> b) s where
+  ($$$) :: (r -> s) -> (t -> a) -> t -> b
+  (f $$$ w) x = f $$$ w x
 
--- | `compile` takes a `Compilable` and returns it compiled
---  (the wrapper and compiler are discarded)
-compile = error "not implemented (compile)" -- unwrapF . resolve
+-- | Given a simple `Compilable` function:
+--
+-- @
+--    plus :: Int -> Int -> Wrapped (Int -> Int -> Int) Int
+-- @
+--
+-- You can use `($$)` to apply `plus` to both the outer (`Int` -> `Int` -> ..)
+-- and innner (`Wrapped` (`Int` -> ..)) functions of `plus`. For example:
+--
+-- >>> plus $$ 1 $$ 2
+-- Wrap 3 3
+--
+($$) :: Compilable a1 (Wrapped (t -> a) b) t1 (Wrapped a b) => (t -> a1) -> t -> t1
+($$) w x = flip wrappedAp x $$$ w $ x
 
--- | `genInstance 0` returns the text for this instance
-instance Compilable (Wrapped f r) (Wrapped f r) (Wrapped g s) (Wrapped g s) where
-  resolve :: Wrapped f r -> Wrapped f r
-  resolve w = w
-  ($$$) :: (Wrapped f r -> Wrapped g s) -> Wrapped f r -> Wrapped g s
-  ($$$) h w = h (w )
 
--- | `genInstance 1` returns the text for this instance
-instance Compilable (Fix a1 -> Wrapped f r) (Wrapped f r) (Fix a1 -> Wrapped g s) (Wrapped g s) where
-  resolve :: (Fix a1 -> Wrapped f r) -> Wrapped f r
-  resolve w = w Unfixed
-  ($$$) :: (Wrapped f r -> Wrapped g s) -> (Fix a1 -> Wrapped f r) -> (Fix a1 -> Wrapped g s)
-  ($$$) h w = \x1 -> h (w x1)
+-- | See `Resolvable`
+class FixResolvable a r | a -> r where
+  fixResolve :: a -> r
 
--- | `genInstance 2` returns the text for this instance
-instance Compilable (Fix a2 -> Fix a1 -> Wrapped f r) (Wrapped f r) (Fix a2 -> Fix a1 -> Wrapped g s) (Wrapped g s) where
-  resolve :: (Fix a2 -> Fix a1 -> Wrapped f r) -> Wrapped f r
-  resolve w = w Unfixed Unfixed
-  ($$$) :: (Wrapped f r -> Wrapped g s) -> (Fix a2 -> Fix a1 -> Wrapped f r) -> (Fix a2 -> Fix a1 -> Wrapped g s)
-  ($$$) h w = \x1 x2 -> h (w x1 x2)
+instance FixResolvable (Wrapped a b) (Wrapped a b) where
+  fixResolve :: Wrapped a b -> Wrapped a b
+  fixResolve w = w
+
+instance (FixResolvable a r) => FixResolvable (Fix t -> a) r where
+  fixResolve :: (Fix t -> a) -> r
+  fixResolve w = fixResolve $ w Unfixed
+
+-- | See `Compilable`
+class FixCompilable a r b s | a -> r, b -> s, a s -> b, r b -> a where
+  (###) :: (r -> s) -> a -> b
+
+instance FixCompilable (Wrapped a b) (Wrapped a b) (Wrapped c d) (Wrapped c d) where
+  (###) :: (Wrapped a b -> Wrapped c d) -> Wrapped a b -> Wrapped c d
+  (###) f = f
+
+instance (FixCompilable a r b s) => FixCompilable (Fix t -> a) r (Fix t -> b) s where
+  (###) :: (r -> s) -> (Fix t -> a) -> Fix t -> b
+  (f ### w) x = f ### w x
+
+-- | See `($$)`
+(##) :: FixCompilable
+       a (Wrapped (r -> a1) b) (r -> r1) (Wrapped a1 b) =>
+     a -> r -> r1
+(##) w x = flip wrappedAp x ### w $ x
+
+
+-- | Apply a function to a `Compilable` from the outside
+-- (just regular application) and also inside (`($$$)`)
+apInOut :: Compilable a b b c => (b -> c) -> a -> c
+apInOut = ap (.) ($$$)
+
+-- | See `apInOut`
+fixApInOut :: FixCompilable a b b c => (b -> c) -> a -> c
+fixApInOut = ap (.) (###)
+
+
+-- | Flip a compilable function
+flipC :: Compilable a1 (a -> b -> c) c (b -> a -> c) =>
+     (a -> b -> a1) -> b -> a -> c
+flipC = apInOut flip
+
+-- | See `flipC`
+fixFlipC :: FixCompilable a (a1 -> b -> c) (a1 -> b -> c) (b -> a1 -> c) =>
+     a -> b -> a1 -> c
+fixFlipC = fixApInOut flip
+
+
+-- | Compile a compilable function
+compile :: Resolvable a (Wrapped f r) => a -> f
+compile = unwrapF . resolve
+
+-- | See `compile`
+fixCompile :: FixResolvable a (Wrapped f r) => a -> f
+fixCompile = unwrapF . fixResolve
+

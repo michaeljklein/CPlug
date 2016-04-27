@@ -1,9 +1,14 @@
+{-# LANGUAGE FlexibleInstances #-}
+{-# LANGUAGE UndecidableInstances #-}
+--  ^ is for the Bits a => Default a instance
 module HSGen.FFI where
 
 import Aux (apToLast)
 import Control.Monad (liftM2)
 import qualified Data.Text as T (Text, append, concat, cons, intercalate, pack, singleton, unwords)
-import Data.Fixed (Fix(..), isFixed)
+import Data.Bits (Bits(..))
+import Data.Default (Default(..))
+import Data.Fixable (Fix(..), isFixed)
 import Data.Text.Aux (addArrows, appendAfter, parens, showInt, textAp, unwords2, wrapText)
 
 -- | This is the standard language pragma for Haskell FFI
@@ -79,15 +84,15 @@ functionImport header name ftype = T.unwords [T.pack "foreign import ccall",
                                               ftype,
                                               T.pack "\n"]
 
-
--- boolsToCUInt = foldl1 xor . zipWith (\p b -> if b then bit p else zeroBits) [0..]
-
 -- c_func :: a -> b -> c
 -- c_compilable_func ::
 
--- fixedToC :: Default a => Fix a -> a
--- fixedToC (Fixed x) = x
--- fixedToC Unfixed = def
+instance Bits a => Default a where
+  def = zeroBits
+
+defUnfix :: Default a => Fix a -> a
+defUnfix (Fixed x) = x
+defUnfix Unfixed = def
 
 -- boolsToCUInt :: [Bool] -> CUInt
 
@@ -115,7 +120,7 @@ mkTup n = parens . T.intercalate (T.singleton ',') . map (T.cons 'x' . showInt) 
 
 
 -- NEED TO GENERATE TYPE: (Bool, Bool, .., Bool) -> CUInt
-{-# WARNING mkBoolToCUInt "This function needs a specific type declaration, don't forget to implement!" #-}
+{-# WARNING mkBoolToCUInt "This (generated) function needs a specific type declaration, don't forget to implement!" #-}
 mkBoolToCUInt :: Int -> T.Text
 mkBoolToCUInt n = T.concat [T.pack "boolToCUInt", showInt n, T.singleton ' ', mkTup n, T.pack " = ", T.intercalate (T.pack " `xor` ") . map auxBoolToText $ [1..n]]
 

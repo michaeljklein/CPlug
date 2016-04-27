@@ -9,6 +9,12 @@ module CGen where
 -- CGen.Caller
 -- CGen.Runner
 
+-- CGen.Compiler
+--  make compiler piper (pipe out program -> gcc(?) -> pipe to dlopen)
+--  make config taker
+
+
+
 {- Read/Write implementation notes:
      Pointer input/output *IS NOW* supported.
 

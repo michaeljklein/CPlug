@@ -1,4 +1,4 @@
-module Data.Fixed where
+module Data.Fixable where
 
 -- | This is a analogue to `Maybe`, but without all of the predefined
 -- instances, to prevent errors.

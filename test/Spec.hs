@@ -1,2 +1,6 @@
+import Test.Data.Undefined (testDataUndefined)
+
 main :: IO ()
-main = putStrLn "Test suite not yet implemented"
+main = do
+  testDataUndefined
+  print "done."

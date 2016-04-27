@@ -1,4 +1,4 @@
-module HSGen.Recompiler.Instances (classText, genInstance) where
+module HSGen.Recompiler.Instances {-# DEPRECATED "All derivation should be covered by Class.hs" #-} where
 
 import qualified Data.Text as T (Text, append, cons, empty, intercalate, lines,
                                 pack, singleton, snoc, unlines, unwords, words)
