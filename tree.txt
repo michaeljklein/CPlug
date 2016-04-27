@@ -11,7 +11,8 @@
 │   │   └── HSGen
 │   │       └── Recompiler
 │   │           └── Class.hs
-│   └── Main.hs
+│   ├── Main.hs
+│   └── Notes.txt
 ├── cplug.cabal
 ├── dispc
 │   ├── Test.hi
@@ -88,4 +89,4 @@
 │               └── Class.hs
 └── tree.txt
 
-25 directories, 63 files
+25 directories, 64 files
