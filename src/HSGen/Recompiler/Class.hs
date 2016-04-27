@@ -5,12 +5,6 @@
 {-# LANGUAGE MultiParamTypeClasses #-}
 {-# LANGUAGE UndecidableInstances #-}
 
--- {-# LANGUAGE AllowAmbiguousTypes #-}
--- {-# LANGUAGE TypeFamilies #-}
--- {-# LANGUAGE KindSignatures #-}
--- {-# LANGUAGE ConstraintKinds #-}
--- {-# LANGUAGE RankNTypes #-}
-
 module HSGen.Recompiler.Class where
 
 import Control.Monad (ap)

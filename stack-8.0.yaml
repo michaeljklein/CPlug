@@ -1,0 +1,14 @@
+resolver: nightly-2016-04-19
+compiler: ghc-8.0
+nix:
+  # --nix on the command-line to enable.
+  enable: false
+  # packages:
+extra-deps:
+# - hpack-0.12.0
+# - path-0.5.7
+# - path-io-1.1.0
+# - transformers-0.5.2.0
+- unix-2.7.2.0
+packages:
+- .

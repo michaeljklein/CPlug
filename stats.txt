@@ -2,7 +2,7 @@
 classified 2010 filesDuplicate file check 2010 files (1705 known unique)Unique:      100 files                                          Unique:      200 files                                          Unique:      300 files                                          Unique:      400 files                                          Unique:      500 files                                          Unique:      600 files                                          Unique:      700 files                                          Unique:      800 files                                          Unique:      900 files                                          Unique:     1000 files                                          Unique:     1100 files                                          Unique:     1200 files                                          Unique:     1300 files                                          Unique:     1400 files                                          Unique:     1500 files                                          Unique:     1600 files                                          Unique:     1700 files                                              1874 unique files.                              
 Counting:  100Counting:  200Counting:  300Counting:  400Counting:  500Counting:  600Counting:  700Counting:  800Counting:  900Counting:  1000Counting:  1100Counting:  1200Counting:  1300Counting:  1400Counting:  1500Counting:  1600Counting:  1700Counting:  1800     284 files ignored.
 
-http://cloc.sourceforge.net v 1.64  T=26.99 s (64.1 files/s, 2796.9 lines/s)
+http://cloc.sourceforge.net v 1.64  T=22.18 s (78.1 files/s, 3403.4 lines/s)
 -------------------------------------------------------------------------------
 Language                     files          blank        comment           code
 -------------------------------------------------------------------------------
@@ -11,9 +11,9 @@ Haskell                         29            439            511            800
 CSS                              2            111             32            462
 Javascript                       1             52             13            279
 C                                8             34             45            164
-YAML                             2             24             19             60
+YAML                             2             23             19             60
 Bourne Shell                     3             10              2             53
 C/C++ Header                     1              0              0              1
 -------------------------------------------------------------------------------
-SUM:                          1731            880            830          73770
+SUM:                          1731            879            830          73770
 -------------------------------------------------------------------------------
