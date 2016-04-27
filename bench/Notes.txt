@@ -1,0 +1,186 @@
+overhead is practically constant. resolve is almost zero overhead (either version). application of multiple values (should be touched up) is about 20x slower with undefined"
+bash: overhead is practically constant. resolve is almost zero overhead (either version). application of multiple values (should be touched up) is about 20x slower with undefined
+
+
+cplug-0.1.0.0: unregistering (local file changes: bench/Bench/HSGen/Recompiler/Class.hs)
+cplug-0.1.0.0: build (lib + exe + bench)
+Preprocessing library cplug-0.1.0.0...
+In-place registering cplug-0.1.0.0...
+Preprocessing executable 'cplug-main' for cplug-0.1.0.0...
+Preprocessing benchmark 'cplug-bench' for cplug-0.1.0.0...
+[2 of 3] Compiling Bench.HSGen.Recompiler.Class ( bench/Bench/HSGen/Recompiler/Class.hs, .stack-work/dist/x86_64-osx/Cabal-1.22.5.0/build/cplug-bench/cplug-bench-tmp/Bench/HSGen/Recompiler/Class.o )
+[3 of 3] Compiling Main             ( bench/Main.hs, .stack-work/dist/x86_64-osx/Cabal-1.22.5.0/build/cplug-bench/cplug-bench-tmp/Main.o ) [Bench.HSGen.Recompiler.Class changed]
+Linking .stack-work/dist/x86_64-osx/Cabal-1.22.5.0/build/cplug-bench/cplug-bench ...
+cplug-0.1.0.0: copy/register
+Installing library in
+/Users/michaelklein/Coding/dispc/.stack-work/install/x86_64-osx/lts-5.14/7.10.3/lib/x86_64-osx-ghc-7.10.3/cplug-0.1.0.0-CTYzAq5gce22yz6iQaUKu2
+Installing executable(s) in
+/Users/michaelklein/Coding/dispc/.stack-work/install/x86_64-osx/lts-5.14/7.10.3/bin
+Registering cplug-0.1.0.0...
+cplug-0.1.0.0: benchmarks
+Running 1 benchmarks...
+Benchmark cplug-bench: RUNNING...
+benchmarking isUndefined/Unfixed
+time                 9.159 ns   (8.715 ns .. 9.580 ns)
+                     0.985 R²   (0.980 R² .. 0.990 R²)
+mean                 9.175 ns   (8.865 ns .. 9.518 ns)
+std dev              1.123 ns   (977.3 ps .. 1.308 ns)
+variance introduced by outliers: 95% (severely inflated)
+
+benchmarking isUndefined/Fixed 0
+time                 8.734 ns   (8.478 ns .. 9.087 ns)
+                     0.990 R²   (0.985 R² .. 0.994 R²)
+mean                 8.778 ns   (8.522 ns .. 9.064 ns)
+std dev              915.2 ps   (787.3 ps .. 1.070 ns)
+variance introduced by outliers: 93% (severely inflated)
+
+benchmarking isFixed/undefined
+time                 32.16 ns   (30.74 ns .. 33.97 ns)
+                     0.983 R²   (0.977 R² .. 0.991 R²)
+mean                 32.30 ns   (31.24 ns .. 33.64 ns)
+std dev              4.028 ns   (3.287 ns .. 4.802 ns)
+variance introduced by outliers: 94% (severely inflated)
+
+benchmarking isFixed/0 (defined)
+time                 35.19 ns   (34.20 ns .. 36.00 ns)
+                     0.993 R²   (0.989 R² .. 0.996 R²)
+mean                 33.43 ns   (32.46 ns .. 34.49 ns)
+std dev              3.403 ns   (2.904 ns .. 4.071 ns)
+variance introduced by outliers: 92% (severely inflated)
+
+benchmarking control (id)/id 0
+time                 8.173 ns   (7.824 ns .. 8.574 ns)
+                     0.988 R²   (0.983 R² .. 0.993 R²)
+mean                 8.365 ns   (8.051 ns .. 8.677 ns)
+std dev              1.061 ns   (928.8 ps .. 1.214 ns)
+variance introduced by outliers: 95% (severely inflated)
+
+benchmarking 1st resolve /resolve 1
+time                 7.964 ns   (7.797 ns .. 8.119 ns)
+                     0.997 R²   (0.996 R² .. 0.998 R²)
+mean                 7.997 ns   (7.829 ns .. 8.207 ns)
+std dev              599.6 ps   (497.7 ps .. 708.8 ps)
+variance introduced by outliers: 87% (severely inflated)
+
+benchmarking 1st resolve /resolve 2
+time                 10.25 ns   (9.509 ns .. 11.51 ns)
+                     0.961 R²   (0.929 R² .. 0.998 R²)
+mean                 9.734 ns   (9.488 ns .. 10.33 ns)
+std dev              1.193 ns   (567.6 ps .. 2.447 ns)
+variance introduced by outliers: 95% (severely inflated)
+
+benchmarking 1st resolve /resolve 3
+time                 10.22 ns   (9.790 ns .. 10.89 ns)
+                     0.977 R²   (0.950 R² .. 0.997 R²)
+mean                 10.28 ns   (9.968 ns .. 10.88 ns)
+std dev              1.366 ns   (782.9 ps .. 2.511 ns)
+variance introduced by outliers: 95% (severely inflated)
+
+benchmarking 1st resolve2/resolve 1
+time                 8.030 ns   (7.875 ns .. 8.230 ns)
+                     0.989 R²   (0.976 R² .. 0.998 R²)
+mean                 8.286 ns   (8.003 ns .. 9.011 ns)
+std dev              1.406 ns   (695.1 ps .. 2.574 ns)
+variance introduced by outliers: 97% (severely inflated)
+
+benchmarking 1st resolve2/resolve 2
+time                 10.64 ns   (10.10 ns .. 11.48 ns)
+                     0.971 R²   (0.940 R² .. 0.995 R²)
+mean                 10.97 ns   (10.43 ns .. 11.85 ns)
+std dev              2.258 ns   (1.375 ns .. 3.485 ns)
+variance introduced by outliers: 98% (severely inflated)
+
+benchmarking 1st resolve2/resolve 3
+time                 10.32 ns   (9.946 ns .. 10.97 ns)
+                     0.986 R²   (0.968 R² .. 0.998 R²)
+mean                 10.19 ns   (9.995 ns .. 10.63 ns)
+std dev              943.5 ps   (493.6 ps .. 1.707 ns)
+variance introduced by outliers: 91% (severely inflated)
+
+benchmarking fix resolve /resolve 1
+time                 8.568 ns   (8.259 ns .. 8.958 ns)
+                     0.989 R²   (0.985 R² .. 0.994 R²)
+mean                 8.442 ns   (8.199 ns .. 8.720 ns)
+std dev              860.9 ps   (744.4 ps .. 1.073 ns)
+variance introduced by outliers: 92% (severely inflated)
+
+benchmarking fix resolve /resolve 2
+time                 8.575 ns   (8.434 ns .. 8.745 ns)
+                     0.995 R²   (0.991 R² .. 0.997 R²)
+mean                 9.133 ns   (8.849 ns .. 9.597 ns)
+std dev              1.222 ns   (897.1 ps .. 1.668 ns)
+variance introduced by outliers: 96% (severely inflated)
+
+benchmarking fix resolve /resolve 3
+time                 9.688 ns   (9.232 ns .. 10.21 ns)
+                     0.982 R²   (0.964 R² .. 0.994 R²)
+mean                 9.829 ns   (9.461 ns .. 10.40 ns)
+std dev              1.580 ns   (1.090 ns .. 2.324 ns)
+variance introduced by outliers: 97% (severely inflated)
+
+benchmarking fix resolve2/resolve 1
+time                 8.866 ns   (8.222 ns .. 9.694 ns)
+                     0.967 R²   (0.956 R² .. 0.989 R²)
+mean                 8.669 ns   (8.302 ns .. 9.163 ns)
+std dev              1.362 ns   (921.7 ps .. 1.797 ns)
+variance introduced by outliers: 97% (severely inflated)
+
+benchmarking fix resolve2/resolve 2
+time                 8.874 ns   (8.698 ns .. 9.026 ns)
+                     0.998 R²   (0.997 R² .. 0.999 R²)
+mean                 8.820 ns   (8.669 ns .. 8.992 ns)
+std dev              515.9 ps   (409.3 ps .. 704.3 ps)
+variance introduced by outliers: 80% (severely inflated)
+
+benchmarking fix resolve2/resolve 3
+time                 9.442 ns   (9.152 ns .. 9.944 ns)
+                     0.974 R²   (0.946 R² .. 0.992 R²)
+mean                 10.38 ns   (9.800 ns .. 11.19 ns)
+std dev              2.509 ns   (1.805 ns .. 3.482 ns)
+variance introduced by outliers: 99% (severely inflated)
+
+benchmarking C apply     /app 1
+time                 595.4 ps   (578.2 ps .. 610.3 ps)
+                     0.996 R²   (0.995 R² .. 0.997 R²)
+mean                 593.7 ps   (581.8 ps .. 612.1 ps)
+std dev              49.39 ps   (36.79 ps .. 76.04 ps)
+variance introduced by outliers: 90% (severely inflated)
+
+benchmarking C apply     /app 2
+time                 12.83 ns   (11.48 ns .. 14.25 ns)
+                     0.950 R²   (0.929 R² .. 0.996 R²)
+mean                 11.92 ns   (11.50 ns .. 12.73 ns)
+std dev              1.898 ns   (893.3 ps .. 3.040 ns)
+variance introduced by outliers: 97% (severely inflated)
+
+benchmarking C apply     /app 3
+time                 12.29 ns   (12.07 ns .. 12.53 ns)
+                     0.997 R²   (0.995 R² .. 0.998 R²)
+mean                 12.79 ns   (12.47 ns .. 13.13 ns)
+std dev              1.097 ns   (917.3 ps .. 1.299 ns)
+variance introduced by outliers: 89% (severely inflated)
+
+benchmarking C fix apply /app 1
+time                 628.4 ps   (614.9 ps .. 639.2 ps)
+                     0.997 R²   (0.996 R² .. 0.998 R²)
+mean                 614.4 ps   (601.9 ps .. 628.1 ps)
+std dev              43.23 ps   (37.03 ps .. 56.99 ps)
+variance introduced by outliers: 87% (severely inflated)
+
+benchmarking C fix apply /app 2
+time                 587.1 ps   (574.3 ps .. 600.8 ps)
+                     0.997 R²   (0.995 R² .. 0.999 R²)
+mean                 582.6 ps   (574.2 ps .. 598.0 ps)
+std dev              37.71 ps   (23.80 ps .. 63.03 ps)
+variance introduced by outliers: 85% (severely inflated)
+
+benchmarking C fix apply /app 3
+time                 597.5 ps   (581.7 ps .. 612.7 ps)
+                     0.996 R²   (0.994 R² .. 0.998 R²)
+mean                 593.8 ps   (582.3 ps .. 612.3 ps)
+std dev              46.32 ps   (33.76 ps .. 68.51 ps)
+variance introduced by outliers: 89% (severely inflated)
+
+"done."
+Benchmark cplug-bench: FINISH
+Completed all 2 actions.

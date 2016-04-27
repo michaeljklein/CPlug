@@ -4,6 +4,14 @@
 ├── Setup.hs
 ├── app
 │   └── Main.hs
+├── bench
+│   ├── Bench
+│   │   ├── Data
+│   │   │   └── Undefined.hs
+│   │   └── HSGen
+│   │       └── Recompiler
+│   │           └── Class.hs
+│   └── Main.hs
 ├── cplug.cabal
 ├── dispc
 │   ├── Test.hi
@@ -17,6 +25,7 @@
 │   ├── test
 │   ├── test.c
 │   └── test.h
+├── dist
 ├── gitTools
 │   ├── coln.sh
 │   ├── dump_all_versions.sh
@@ -24,15 +33,19 @@
 ├── src
 │   ├── Aux.hs
 │   ├── CGen
+│   │   ├── Compiler.hs
 │   │   ├── Typed.hs
 │   │   └── type_list.c
 │   ├── CGen.hs
 │   ├── Data
+│   │   ├── Default
+│   │   │   └── Aux.hs
 │   │   ├── Either
 │   │   │   └── Aux.hs
-│   │   ├── Fixed.hs
+│   │   ├── Fixable.hs
 │   │   ├── Text
 │   │   │   └── Aux.hs
+│   │   ├── Undefined.hs
 │   │   └── Wrapped.hs
 │   ├── HSGen
 │   │   ├── FFI.hs
@@ -44,17 +57,35 @@
 │   │   ├── Templates.hs
 │   │   └── Types.hs
 │   ├── Parse.hs
-│   └── cex
-│       ├── m
-│       ├── m.c
+│   ├── cex
+│   │   ├── m
+│   │   ├── m.c
+│   │   ├── m2
+│   │   ├── m2.c
+│   │   ├── parse.c
+│   │   └── t.txt
+│   └── cex2
+│       ├── inf.c
 │       ├── m2
 │       ├── m2.c
-│       ├── parse.c
-│       └── t.txt
+│       ├── m3
+│       ├── main.c
+│       ├── mm
+│       ├── n2
+│       ├── n2.c
+│       ├── outf
+│       └── test
 ├── stack.yaml
 ├── stats.txt
 ├── test
-│   └── Spec.hs
+│   ├── Scratch.hs
+│   ├── Spec.hs
+│   └── Test
+│       ├── Data
+│       │   └── Undefined.hs
+│       └── HSGen
+│           └── Recompiler
+│               └── Class.hs
 └── tree.txt
 
-13 directories, 44 files
+25 directories, 63 files
