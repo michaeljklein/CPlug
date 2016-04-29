@@ -19,9 +19,11 @@ import Parse.Templates (CFunctionTemplate(..))
 
 -------------------------------------------------------------------------------------------------------------------------------------------------------
 
+-- | Parse a '.c' file
 parse :: FilePath -> IO (Maybe CTranslUnit)
 parse = debugParse False
 
+-- | `parse`, but with debug information
 debugParse :: Bool -> FilePath -> IO (Maybe CTranslUnit)
 debugParse debug filename = do
   inputStream <- readInputStream filename
@@ -30,6 +32,7 @@ debugParse debug filename = do
   when debug $ putStrLn $ "Error (if any) from parsing is: " ++ show (fromLeft parsed)
   return . fromRight $ parsed
 
+-- | make function templates from a '.c' file
 parseFunctions :: FilePath -> IO [CFunctionTemplate]
 parseFunctions = mkCFunTempls . liftM (liftM fstCTranslUnit) . parse
 
@@ -153,3 +156,6 @@ mkCFunTempl = liftM4 (liftM4 CFunTempl) getFunctionReturnTypeText getFunctionNam
 
 mkCFunTempls :: (Monad m, Pretty (CStatement t), Pretty (CDeclarationSpecifier t), Pretty (CDeclaration t)) => m (Maybe [CExternalDeclaration t]) -> m [CFunctionTemplate]
 mkCFunTempls = liftM (join . maybeToList . liftM (mapMaybe mkCFunTempl))
+
+
+ex = "signed char            signed_char;\nunsigned char          unsigned_char;\nshort int              short_int;\nsigned short           signed_short;\nsigned short int       signed_short_int;\nunsigned short         unsigned_short;\nunsigned short int     unsigned_short_int;\nsigned int             signed_int;\nunsigned int           unsigned_int;\nlong int               long_int;\nsigned long            signed_long;\nsigned long int        signed_long_int;\nunsigned long          unsigned_long;\nunsigned long int      unsigned_long_int;\nlong long              long_long;\nlong long int          long_long_int;\nsigned long long       signed_long_long;\nsigned long long int   signed_long_long_int;\nunsigned long long     unsigned_long_long;\nunsigned long long int unsigned_long_long_int;\nlong double            long_double;"
