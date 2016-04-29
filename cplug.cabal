@@ -40,7 +40,7 @@ library
                      , language-c >= 0.4.7 && < 0.6 
                      , process >= 1.2 && < 1.5
                      , temporary >= 1.2
-                     , text >= 1.2.2.0 && < 1.2.3 
+                     , text >= 1.2.0.0
                      , text-show >= 2.1.2 
                      , unix >= 2.7.0.0
   other-modules:       Data.Default.Aux
