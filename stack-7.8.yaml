@@ -1,3 +1,4 @@
 resolver: lts-2.22
 
-
+extra-deps: 
+- text-show-3.2.1

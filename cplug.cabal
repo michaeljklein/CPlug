@@ -31,19 +31,18 @@ library
                      , Parse.Templates
                      , Parse.Types
 
-  build-depends:       base >= 4.7 && < 5
-                     , bytestring >= 0.10.4 && < 0.10.7 
-                     , classy-prelude >= 0.12.0
+  build-depends:       base >= 4.7
+                     , bytestring >= 0.10.3 
+                     , classy-prelude >= 0.11.0
                      , data-default >= 0.5.0
-                     , directory >= 1.2.2 && < 1.2.7 
-                     , ghc-prim >= 0.4.0.0 
+                     , directory >= 1.2.1.0
+                     , ghc-prim >= 0.3.1.0
                      , language-c >= 0.4.7 && < 0.6 
                      , process >= 1.2 && < 1.5
                      , temporary >= 1.2
-                     , text >= 1.2.2 && < 1.2.3 
                      , text >= 1.2.2.0 && < 1.2.3 
                      , text-show >= 2.1.2 
-                     , unix >= 2.7.1 && < 2.7.3
+                     , unix >= 2.7.0.0
   other-modules:       Data.Default.Aux
   default-language:    Haskell2010
 
