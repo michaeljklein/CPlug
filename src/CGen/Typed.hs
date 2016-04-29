@@ -1,8 +1,7 @@
 module CGen.Typed where
 
 import Foreign.C.Types
-import qualified Data.Text as T (Text, snoc)
-import TextShow (showt)
+import qualified Data.Text as T (Text, snoc, pack)
 
 -- | Adds 'U' to the end of a `Text` object
 addUnsigned :: T.Text -> T.Text
@@ -11,6 +10,9 @@ addUnsigned = flip T.snoc 'U'
 -- | Adds 'L' to the end of a `Text` object
 addLong :: T.Text -> T.Text
 addLong = flip T.snoc 'L'
+
+showt :: Show a => a -> T.Text
+showt = T.pack . show
 
 -- | This class allows one to `show` objects from "Foreign.C.Types" in a way
 -- that won't throw warnings if used in C code. For example,
