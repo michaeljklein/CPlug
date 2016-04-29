@@ -76,6 +76,8 @@
 │       ├── n2.c
 │       ├── outf
 │       └── test
+├── stack-7.8.yaml
+├── stack-8.0.yaml
 ├── stack.yaml
 ├── stats.txt
 ├── test
@@ -89,4 +91,4 @@
 │               └── Class.hs
 └── tree.txt
 
-25 directories, 64 files
+25 directories, 66 files

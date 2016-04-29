@@ -1,14 +1,17 @@
+{-# LANGUAGE ScopedTypeVariables #-}
 
-import Control.Exception                (catch)
-import Control.Monad                    (liftM)
-import qualified Data.ByteString.Char8 as C8           (pack, unpack)
+import ClassyPrelude                    (catchAny)
+import Control.Applicative              (optional)
+import Control.Exception                (catch, IOException)
+import Control.Monad                    (liftM, liftM2, join)
+import qualified Data.ByteString.Char8 as C8           (append, cons, pack, unpack)
 import System.Directory                 (removeFile)
 import System.IO                        (hClose)
 import System.IO.Temp                   (openTempFile)
 import System.Posix.ByteString.FilePath (RawFilePath, withFilePath)
-import System.Posix.Files.ByteString    (fileExist)
+import System.Posix.Files.ByteString    (fileExist, createNamedPipe)
 import System.Posix.IO.ByteString       (fdWrite, openFd, closeFd, fdWrite, OpenMode(..), defaultFileFlags)
-import System.Posix.Types               (Fd)
+import System.Posix.Types               (ByteCount, Fd, FileMode)
 import System.Exit                      ( ExitCode(..) )
 import System.Process                   (readProcessWithExitCode)
 import qualified Data.Text as T
@@ -35,42 +38,58 @@ newtype Source = Source T.Text
 newtype Pipe = Pipe RawFilePath
 newtype OutputFilePath = OutputFilePath RawFilePath
 
-makeTemporaryPipe :: IO (Maybe Pipe)
-makeTemporaryPipe = undefined
+createTempPipe :: RawFilePath -> String -> FileMode -> IO (Maybe Pipe)
+createTempPipe dir name mode = do
+  filePath <- makeTempFileName dir name
+  result <- nothingIfException $ createNamedPipe filePath mode
+  return $ result >>= const (Just . Pipe $ filePath)
 
-openPipe :: Pipe -> IO Fd
-openPipe (Pipe filePath) = openFd filePath ReadOnly Nothing defaultFileFlags
+openPipe :: Pipe -> IO (Maybe Fd)
+openPipe (Pipe filePath) = nothingIfIOError $ openFd filePath ReadOnly Nothing defaultFileFlags
 
 rawToFilePath :: RawFilePath -> FilePath
 rawToFilePath = show
 
+liftMaybeIO :: (a -> IO (Maybe b)) -> Maybe a -> IO (Maybe b)
+liftMaybeIO f Nothing  = return Nothing
+liftMaybeIO f (Just x) = f x
+
+safeWrite :: Maybe Fd -> String -> IO (Maybe ByteCount)
+safeWrite fd str = liftMaybeIO (nothingIfException . flip fdWrite str) fd
+
+checkedWrite :: Maybe Fd -> String -> IO (Maybe Bool)
+checkedWrite fd str = do
+  let shouldBeWritten = Just . length $ str
+  maybeWritten <- (fmap . fmap) fromEnum $ safeWrite fd str
+  return $ liftM2 (==) shouldBeWritten maybeWritten
+
 -- | This function writes a `Source` to a `Pipe`, returning just the `Pipe` on
--- success, else `Nothing`
-writeSourceToPipe :: Source -> Pipe -> IO (Maybe Pipe)
-writeSourceToPipe (Source source) pipe = do
-  pipeFd <- openPipe pipe
-  let sourceString = T.unpack source
-  bytesWritten <- fdWrite pipeFd sourceString
-  let bytesShouldBeWritten = length sourceString
-  closeFd pipeFd
-  if (toEnum bytesWritten) == bytesShouldBeWritten
-  then
-    do
-      return (Just pipe)
-  else
-    do
-      let Pipe pipeName = pipe
-      removeIfExists (rawToFilePath pipeName)
-      return Nothing
+-- -- success, else `Nothing`
+-- writeSourceToPipe :: Source -> Pipe -> IO (Maybe Pipe)
+-- writeSourceToPipe (Source source) pipe = do
+--   let sourceString = T.unpack source
+--   let bytesShouldBeWritten = length sourceString
+--   pipeFd <- openPipe pipe
+--   maybeBytesWritten <- safeWrite pipeFd sourceString
+--   nothingIfException $ closeFd pipeFd
+--   if toInteger bytesWritten == toInteger bytesShouldBeWritten
+--   then
+--     do
+--       return (Just pipe)
+--   else
+--     do
+--       let Pipe pipeName = pipe
+--       removeIfExists (rawToFilePath pipeName)
+--       return Nothing
 
 
-sourceToPipe :: Source -> IO (Maybe Pipe)
-sourceToPipe (Source source) = do
-  pipe <- makeTemporaryPipe
-  output <- liftM (writeSourceToPipe source) pipe
-  output
+-- sourceToPipe :: Source -> IO (Maybe Pipe)
+-- sourceToPipe source = do
+--   pipe <- makeTemporaryPipe
+--   liftM (writeSourceToPipe source) pipe
 
--- isGoodPipe :: Pipe -> IO Bool
+
+-- isGoodPipe :: Pipe -> IO Bool -->> use isNamedPipe
 
 -- runCompiler compiler sources = do
 --   sourcePipes <- mapM sourceToPipe sources
@@ -88,29 +107,28 @@ sourceToPipe (Source source) = do
 --       removeIfExists outputFile
 --       return Nothing
 
-nothingIfMinus1 -1 = Nothing
-nothingIfMinus1  x = Just x
-
 rawFilePathToNonRaw :: RawFilePath -> FilePath
 rawFilePathToNonRaw = C8.unpack
 
 removeIfExists :: FilePath -> IO ()
 removeIfExists filePath = do
-  Control.Exception.catch (removeFile filePath) $ \e -> do
+  catch (removeFile filePath) $ \(e :: IOException) -> do
     return ()
 
 nothingIfException :: IO a -> IO (Maybe a)
-nothingIfException f = do
-  result <- Control.Exception.catch f $ \e -> do
-    return Nothing
-  return (Just result)
+nothingIfException f = catchAny (optional f) $ \e -> do
+  return Nothing
+
+nothingIfIOError :: IO a -> IO (Maybe a)
+nothingIfIOError io = liftM (join . Just) . catch (optional io) $ \(e :: IOError) -> do
+  return Nothing
 
 makeTempFileName :: RawFilePath -> String -> IO RawFilePath
 makeTempFileName dir name = do
-  (filePath, handle) <- openTempFile dir name
+  (filePath, handle) <- openTempFile (show dir) name
   hClose handle
   removeIfExists filePath
-  exists <- fileExist $ dir ++ name
+  exists <- fileExist . C8.append dir . C8.pack $ '/' : name
   if exists
   then
     do
@@ -119,12 +137,6 @@ makeTempFileName dir name = do
     do
       return (C8.pack filePath)
 
-
-
--- createTempFifo dir name mode = do
---   filePath <- makeTempFileName dir name
---   withFilePath filePath $ \s ->
---     nothingIfMinus1 (undefined s mode) -- prev: c_mkfifo
 
 
 
