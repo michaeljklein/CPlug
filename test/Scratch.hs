@@ -12,11 +12,11 @@
 
 module Scratch where
 
+import Control.Spoon.Prim (throws)
 import Data.Fixable
 import Unsafe.Coerce
 import Data.Default
 import Data.Wrapped
-import Data.Undefined
 
 class Resolvable a where
   type Resolution a
@@ -44,7 +44,7 @@ instance FixResolvable a => FixResolvable (Fix t -> a) where
   fixResolve w = fixResolve $ w Unfixed
 
 
-u x = if isUndefined x then 1 else 0
+u x = if throws x then 1 else 0
 
 t1 :: Int -> Wrapped (Int -> Int) Int
 t1 x = defWrap $ u x

@@ -1,6 +1,6 @@
 int isum2(int a, int b){return a + b;}
 
-int isum3(int a, int b, int c){return a + b + c;}
+int isum3(int a, int b, int c){return isum2(a,b) + c;}
 
 signed char            signedchar_id(signed char x){return x;}
 unsigned char          unsignedchar_id(unsigned char x){return x;}

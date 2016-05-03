@@ -2,6 +2,7 @@
 
 module Data.Wrapped where
 
+import Control.Applicative (Applicative(..))
 import Data.Default
 
 -- | This is a wrapper type made specifically for `Compilable` instances.

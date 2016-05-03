@@ -1,19 +1,19 @@
-     100 files     200 files     300 files     400 files     500 files     600 files     700 files     800 files     900 files    1000 files    1100 files    1200 files    1300 files    1400 files    1500 files    1600 files    1700 files    1800 files    1900 files    2000 files    2063 text files.
-classified 2063 filesDuplicate file check 2063 files (1753 known unique)Unique:      100 files                                          Unique:      200 files                                          Unique:      300 files                                          Unique:      400 files                                          Unique:      500 files                                          Unique:      600 files                                          Unique:      700 files                                          Unique:      800 files                                          Unique:      900 files                                          Unique:     1000 files                                          Unique:     1100 files                                          Unique:     1200 files                                          Unique:     1300 files                                          Unique:     1400 files                                          Unique:     1500 files                                          Unique:     1600 files                                          Unique:     1700 files                                              1926 unique files.                              
+     100 files     200 files     300 files     400 files     500 files     600 files     700 files     800 files     900 files    1000 files    1100 files    1200 files    1300 files    1400 files    1500 files    1600 files    1700 files    1800 files    1900 files    2000 files    2065 text files.
+classified 2065 filesDuplicate file check 2065 files (1755 known unique)Unique:      100 files                                          Unique:      200 files                                          Unique:      300 files                                          Unique:      400 files                                          Unique:      500 files                                          Unique:      600 files                                          Unique:      700 files                                          Unique:      800 files                                          Unique:      900 files                                          Unique:     1000 files                                          Unique:     1100 files                                          Unique:     1200 files                                          Unique:     1300 files                                          Unique:     1400 files                                          Unique:     1500 files                                          Unique:     1600 files                                          Unique:     1700 files                                              1928 unique files.                              
 Counting:  100Counting:  200Counting:  300Counting:  400Counting:  500Counting:  600Counting:  700Counting:  800Counting:  900Counting:  1000Counting:  1100Counting:  1200Counting:  1300Counting:  1400Counting:  1500Counting:  1600Counting:  1700Counting:  1800Counting:  1900     333 files ignored.
 
-http://cloc.sourceforge.net v 1.64  T=20.77 s (83.5 files/s, 3636.5 lines/s)
+http://cloc.sourceforge.net v 1.64  T=24.45 s (71.1 files/s, 3146.3 lines/s)
 -------------------------------------------------------------------------------
 Language                     files          blank        comment           code
 -------------------------------------------------------------------------------
 HTML                          1685            210            208          71951
-Haskell                         30            375            370            858
+Haskell                         31            382            381           1324
+C                                9            479             45            629
 CSS                              2            111             32            462
 Javascript                       1             52             13            279
-C                                8             34             45            164
 C/C++ Header                     2             26             25            122
 YAML                             4             24             25             71
 Bourne Shell                     3             10              2             53
 -------------------------------------------------------------------------------
-SUM:                          1735            842            720          73960
+SUM:                          1737           1294            731          74891
 -------------------------------------------------------------------------------

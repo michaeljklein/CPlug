@@ -1,17 +1,17 @@
 module Test.HSGen.Recompiler.Class where
 
-import Data.Undefined
+import Control.Spoon.Prim (throws)
 import Data.Wrapped
 import HSGen.Recompiler.Class
 
 -- | These are for testing `resolve`
 undefTo0 :: Num a => a -> a
-undefTo0 x = if isUndefined x
+undefTo0 x = if throws x
                 then 0
                 else x
 
 undefTo1 :: Num a1 => a -> a1
-undefTo1 x  | isUndefined x = 1
+undefTo1 x  | throws x = 1
             | otherwise     = 0
 
 t1 :: Int -> Wrapped Int Int

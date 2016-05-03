@@ -1,4 +1,7 @@
+ex = "signed char            signed_char;\nunsigned char          unsigned_char;\nshort int              short_int;\nsigned short           signed_short;\nsigned short int       signed_short_int;\nunsigned short         unsigned_short;\nunsigned short int     unsigned_short_int;\nsigned int             signed_int;\nunsigned int           unsigned_int;\nlong int               long_int;\nsigned long            signed_long;\nsigned long int        signed_long_int;\nunsigned long          unsigned_long;\nunsigned long int      unsigned_long_int;\nlong long              long_long;\nlong long int          long_long_int;\nsigned long long       signed_long_long;\nsigned long long int   signed_long_long_int;\nunsigned long long     unsigned_long_long;\nunsigned long long int unsigned_long_long_int;\nlong double            long_double;"
 
+-- | This is the template for making the `const` test C functions
+mkf xt yt = ((concat . words $ xt) ++ "_ignoring_" ++ (concat . words $ yt), xt ++ " " ++ (concat . words $ xt) ++ "_ignoring_" ++ (concat . words $ yt) ++ "(" ++ xt ++ " x, " ++ yt ++ " y){return x;}\n")
 
 -- c_isum2 :: Int -> Int -> Int
 -- c_isum3 :: Int -> Int -> Int -> Int
@@ -476,3 +479,5 @@ constNames = [
   ("longdouble_ignoring_unsignedlonglong","long double"),
   ("longdouble_ignoring_unsignedlonglongint","long double"),
   ("longdouble_ignoring_longdouble","long double")]
+
+

@@ -7,10 +7,10 @@
 
 module HSGen.Recompiler.Class where
 
-import Control.Monad (ap)
+import Control.Monad (ap, liftM2)
+import Control.Spoon.Prim
 import Data.Default.Aux
 import Data.Fixable (Fix(..))
-import Data.Undefined
 import Data.Wrapped (Wrapped(..), unwrapF, wrappedAp, defWrap)
 
 infixl 1 $$
@@ -114,11 +114,17 @@ fixFlipC :: FixCompilable a (a1 -> b -> c) (a1 -> b -> c) (b -> a1 -> c) =>
 fixFlipC = fixApInOut flip
 
 
--- | Compile a compilable function
-compile :: Resolvable a (Wrapped f r) => a -> f
-compile = unwrapF . resolve
+replaceFW :: a -> Wrapped a b -> Wrapped a b
+replaceFW f (Wrap _ r) = Wrap f r
+
+
+-- | Compile a compilable function, essentially by resolving to the wrapped
+-- function and return value, unwrapping the non-compilable function (i.e.
+-- getting the compiled version), and replacing the original non-compilable
+-- function.
+compile :: (Compilable a1 (Wrapped a b) r (Wrapped a b), Resolvable a1 (Wrapped a b1)) => a1 -> r
+compile = liftM2 ($$$) (replaceFW . unwrapF . resolve) id
 
 -- | See `compile`
-fixCompile :: FixResolvable a (Wrapped f r) => a -> f
-fixCompile = unwrapF . fixResolve
-
+fixCompile :: (Compilable a1 (Wrapped a b) r (Wrapped a b), Resolvable a1 (Wrapped a b1)) => a1 -> r
+fixCompile = liftM2 ($$$) (replaceFW . unwrapF . resolve) id

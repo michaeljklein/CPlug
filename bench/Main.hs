@@ -1,9 +1,10 @@
 module Main where
 
-import Bench.Data.Undefined (benchDataUndefined)
+import Criterion.Main (defaultMain)
 import Bench.HSGen.Recompiler.Class (benchHSGenRecompilerClass)
+import Bench.Parse.Templates (benchParseTemplates)
 
-main = do
-  benchDataUndefined
-  benchHSGenRecompilerClass
-  print "done."
+main :: IO ()
+main = defaultMain . concat $ [ benchHSGenRecompilerClass
+                              , benchParseTemplates
+                              ]

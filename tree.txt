@@ -65,17 +65,20 @@
 │   │   ├── m2.c
 │   │   ├── parse.c
 │   │   └── t.txt
-│   └── cex2
-│       ├── inf.c
-│       ├── m2
-│       ├── m2.c
-│       ├── m3
-│       ├── main.c
-│       ├── mm
-│       ├── n2
-│       ├── n2.c
-│       ├── outf
-│       └── test
+│   ├── cex2
+│   │   ├── inf.c
+│   │   ├── m2
+│   │   ├── m2.c
+│   │   ├── m3
+│   │   ├── main.c
+│   │   ├── mm
+│   │   ├── n2
+│   │   ├── n2.c
+│   │   ├── outf
+│   │   └── test
+│   └── cex3
+│       ├── Names.hs
+│       └── simple_tests.c
 ├── stack-7.8.yaml
 ├── stack-8.0.yaml
 ├── stack.yaml
@@ -91,4 +94,4 @@
 │               └── Class.hs
 └── tree.txt
 
-25 directories, 66 files
+26 directories, 68 files

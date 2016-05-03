@@ -15,7 +15,7 @@ import Language.C.Data.Position (initPos)
 import Language.C.Syntax.AST
 import Language.C.Pretty
 import System.IO.Unsafe (unsafePerformIO)
-import Parse.Templates (CFunctionTemplate(..))
+import Parse.Templates -- (CFunctionTemplate(..), unTemplate, cTypeRep)
 
 -------------------------------------------------------------------------------------------------------------------------------------------------------
 
@@ -158,4 +158,4 @@ mkCFunTempls :: (Monad m, Pretty (CStatement t), Pretty (CDeclarationSpecifier t
 mkCFunTempls = liftM (join . maybeToList . liftM (mapMaybe mkCFunTempl))
 
 
-ex = "signed char            signed_char;\nunsigned char          unsigned_char;\nshort int              short_int;\nsigned short           signed_short;\nsigned short int       signed_short_int;\nunsigned short         unsigned_short;\nunsigned short int     unsigned_short_int;\nsigned int             signed_int;\nunsigned int           unsigned_int;\nlong int               long_int;\nsigned long            signed_long;\nsigned long int        signed_long_int;\nunsigned long          unsigned_long;\nunsigned long int      unsigned_long_int;\nlong long              long_long;\nlong long int          long_long_int;\nsigned long long       signed_long_long;\nsigned long long int   signed_long_long_int;\nunsigned long long     unsigned_long_long;\nunsigned long long int unsigned_long_long_int;\nlong double            long_double;"
+

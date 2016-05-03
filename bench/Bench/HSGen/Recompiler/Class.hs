@@ -5,9 +5,9 @@
 
 module Bench.HSGen.Recompiler.Class where
 
+import Control.Spoon.Prim (throws)
 import Criterion.Main
 import Data.Fixable
-import Data.Undefined
 import Data.Wrapped
 import qualified HSGen.Recompiler.Class as C
 
@@ -36,8 +36,8 @@ instance FixResolvable a => FixResolvable (Fix t -> a) where
   type FixResolution (Fix t -> a) = FixResolution a
   fixResolve w = fixResolve $ w Unfixed
 
-
-undef x = if isUndefined x then 1 else 0
+undef :: a -> Bool
+undef = throws
 
 t1 :: Int -> Wrapped (Int -> Int) Int
 t1 x = defWrap $ undef x
@@ -61,8 +61,8 @@ f2 x y = defWrap $ unfd x + unfd y
 f3 :: Fix Int -> Fix Int -> Fix Int -> Wrapped (Fix Int -> Fix Int -> Fix Int -> Int) Int
 f3 x y z = defWrap $ unfd x + unfd y + unfd z
 
-benchHSGenRecompilerClass :: IO ()
-benchHSGenRecompilerClass = defaultMain [
+benchHSGenRecompilerClass :: [Benchmark]
+benchHSGenRecompilerClass = [
   bgroup "control (id)" [ bench "id 0    "  $ whnf         id 0
                         ],
 
