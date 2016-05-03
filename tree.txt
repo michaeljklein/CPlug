@@ -6,13 +6,17 @@
 │   └── Main.hs
 ├── bench
 │   ├── Bench
+│   │   ├── CGen
 │   │   ├── Data
-│   │   │   └── Undefined.hs
-│   │   └── HSGen
-│   │       └── Recompiler
-│   │           └── Class.hs
+│   │   ├── HSGen
+│   │   │   └── Recompiler
+│   │   │       └── Class.hs
+│   │   └── Parse
+│   │       └── Templates.hs
 │   ├── Main.hs
 │   └── Notes.txt
+├── benchmarks.html
+├── benchmarks_prev.html
 ├── cplug.cabal
 ├── dispc
 │   ├── Test.hi
@@ -46,7 +50,6 @@
 │   │   ├── Fixable.hs
 │   │   ├── Text
 │   │   │   └── Aux.hs
-│   │   ├── Undefined.hs
 │   │   └── Wrapped.hs
 │   ├── HSGen
 │   │   ├── FFI.hs
@@ -88,10 +91,9 @@
 │   ├── Spec.hs
 │   └── Test
 │       ├── Data
-│       │   └── Undefined.hs
 │       └── HSGen
 │           └── Recompiler
 │               └── Class.hs
 └── tree.txt
 
-26 directories, 68 files
+28 directories, 68 files

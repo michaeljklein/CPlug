@@ -6,6 +6,8 @@ import Language.C.Pretty (Pretty, pretty)
 import Data.Text.Lazy (toStrict)
 import Data.Text.Lazy.Builder (toLazyText)
 import Data.Text.Lazy.Builder.Int (decimal)
+import Text.PrettyPrint.HughesPJ.Ext
+import TextShow (showt)
 
 -- | `showInt` should be equivalent to `pack . show` for the `Int` type, except
 --  a bit faster since it uses `Text` library functions
@@ -79,15 +81,8 @@ packUnlines = T.unlines . map T.pack
 packUnwords :: [String] -> T.Text
 packUnwords = T.unwords . map T.pack
 
--- | Shortcut for
---
--- > pack . show
---
-showt :: Show a => a -> T.Text
-showt = T.pack . show
-
 -- | Convert a pretty-printable object to `Text`
 prettyShowt :: Pretty p => p -> T.Text
-prettyShowt = T.pack . show . pretty
+prettyShowt = showt . pretty
 
 

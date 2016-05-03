@@ -126,6 +126,11 @@ unpackIdent (Ident x _ _) = x
 splitTypedVar :: T.Text -> Maybe (T.Text, T.Text)
 splitTypedVar = liftM (apFst T.unwords) . lastTup . T.words
 
+splitToNamedVar :: (T.Text, T.Text) -> NamedVar
+splitToNamedVar (t, n) = NameVar {varType = t, varName = n}
+
+makeNamedVar :: T.Text -> Maybe NamedVar
+makeNamedVar = liftM splitToNamedVar . splitTypedVar
 
 getFunctionName :: CExternalDeclaration t -> Maybe Ident
 getFunctionName = join . liftM (decIdent . fDecl) . fromLeft . eitherCFDefExt
@@ -142,8 +147,8 @@ getFunctionReturnTypeText = liftM (T.unwords . map T.pack) . getFunctionReturnTy
 getFunctionInputTypes :: CExternalDeclaration t -> Maybe [CDeclaration t]
 getFunctionInputTypes = join . join . liftM (liftM (liftM fst . fromRight) . head . map derivedDeclaratorFunDecl . decDerivedDecls . fDecl) . fromLeft . eitherCFDefExt
 
-getFunctionInputTypesText :: Pretty (CDeclaration t) => CExternalDeclaration t -> Maybe [(T.Text, T.Text)]
-getFunctionInputTypesText = liftM (mapMaybe (splitTypedVar . prettyShowt)) . getFunctionInputTypes
+getFunctionInputTypesText :: Pretty (CDeclaration t) => CExternalDeclaration t -> Maybe [NamedVar]
+getFunctionInputTypesText = liftM (mapMaybe (makeNamedVar . prettyShowt)) . getFunctionInputTypes
 
 getFunctionBody :: CExternalDeclaration t -> Maybe (CStatement t)
 getFunctionBody = liftM fStatement . fromLeft . eitherCFDefExt

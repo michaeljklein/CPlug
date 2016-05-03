@@ -1,5 +1,5 @@
 {-# LANGUAGE OverloadedStrings #-}
-
+{-# LANGUAGE DeriveGeneric #-}
 
 module Parse.Templates where
 
@@ -8,11 +8,16 @@ import qualified Data.Text as T
 import CGen.Typed (CShow(..), showForC)
 import Control.Applicative ((<|>))
 import Control.Monad (liftM, mfilter)
+import Data.List ((\\))
+import Data.Maybe (listToMaybe)
 import Data.Text.Aux (parens)
 import Data.Tuple (swap)
 import Data.Typeable (typeOf, Typeable(..), TyCon(..), TypeRep(..), mkTyConApp, splitTyConApp)
 import Foreign.C.Types
 import Foreign.Ptr
+import TextShow (TextShow(..), fromText, showt)
+import TextShow.Generic (genericShowbPrec)
+import GHC.Generics (Generic(..))
 
 --  Parse.Templates
 --    make CType -> String templates (e.g. CUInt -> String)
@@ -22,29 +27,48 @@ import qualified Data.Text as T (Text, append, concat, intercalate, singleton, p
 
 -------------------------------------------------------------------------------------------------------------------------------------------------------
 
+data NamedVar = NameVar { varType :: T.Text
+                        , varName :: T.Text
+                        } deriving (Eq, Generic, Show)
+
+instance TextShow NamedVar where
+  showb NameVar {varType = vt, varName = vn} = fromText $ T.append vt $ T.cons ' ' vn
+
+
 -- `CFunctionTemplate` consists of: function name, return type, list of input (type, var), function body
-data CFunctionTemplate = CFunTempl {returnType   :: T.Text,
-                                    functionName :: T.Text,
-                                    inputVars    :: [(T.Text, T.Text)],
-                                    functionBody :: T.Text
-                                   } deriving (Eq, Ord, Show)
+data CFunctionTemplate = CFunTempl { returnType   :: T.Text
+                                   , functionName :: T.Text
+                                   , inputVars    :: [NamedVar]
+                                   , functionBody :: T.Text
+                                   } deriving (Eq, Generic, Show)
+
+instance TextShow CFunctionTemplate where
+  showbPrec = genericShowbPrec
+
+
+data NamedVal a = NameVal {valName  :: T.Text,
+                          value    :: a
+                          } deriving (Eq, Generic, Show)
+
+instance TextShow a => TextShow (NamedVal a) where
+  showbPrec = genericShowbPrec
+
+
 
 
 unTemplate :: CFunctionTemplate -> T.Text
 unTemplate ct = T.concat [ returnType ct
                          , T.singleton ' '
                          , functionName ct
-                         , parens $ T.intercalate (T.pack ", ") $ map (T.unwords . tupToList) $ inputVars ct
+                         , parens . T.intercalate (T.pack ", ") . map showt . inputVars $ ct
                          , functionBody ct
                          ]
 
-data NamedVal a = NamedV {valName  :: T.Text,
-                          value    :: a
-                         } deriving (Eq, Ord, Show)
 
--- update :: (a -> Maybe a) -> a -> a
--- update f x = let Just y = f x <|> Just x in y
-
+fetchVar :: NamedVal a -> [NamedVar] -> (Maybe NamedVar, [NamedVar])
+fetchVar nv@(NameVal {valName = vn}) vs = (listToMaybe fetched, vs \\ fetched)
+  where
+    fetched = filter ((== vn) . varName) vs
 
 updateInputVar :: CFunctionTemplate -> NamedVal a -> [(T.Text, T.Text)]
 updateInputVar ct v = undefined
@@ -86,7 +110,7 @@ update f x = let Just y = f x <|> Just x in y
 
 -- updateWith ::
 
-tt x y = mfilter (\z -> cTypeRep z == typeOf (value x)) . lookup (valName x) . map swap . inputVars $ y
+-- tt x y = mfilter (\z -> cTypeRep z == typeOf (value x)) . lookup (valName x) . map swap . inputVars $ y
 
 -- fixVar :: CFunctionTemplate -> a -> CFunctionTemplate
 -- fixVar ct x = if isJust varCType
